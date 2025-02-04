@@ -18,7 +18,7 @@
   <!-- Header Section -->
   <header class="bg-gray-800 p-6 shadow-lg">
     <h1 class="text-4xl font-bold text-center">HomiesUnlocked</h1>
-    <p class="text-center text-gray-400 mt-2">More than a routine...</p>
+    <p class="text-center text-gray-400 mt-2">Unlock your routine in style</p>
   </header>
 
   <!-- Main Container -->
@@ -35,27 +35,40 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-center gap-6 mb-8">
-      <button id="generate-btn" class="flex items-center bg-blue-600 text-white rounded-full px-8 py-2 hover:bg-blue-500 transition shadow">
-        <!-- Gear Icon (will spin when generating) -->
-        <svg xmlns="http://www.w3.org/2000/svg" id="generate-icon" class="h-5 w-5 mr-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-        </svg>
-        <span>Generate Routine</span>
-      </button>
-      <button id="screenshot-btn" class="flex items-center bg-green-600 text-white rounded-full px-8 py-2 hover:bg-green-500 transition shadow">
-        <!-- Camera Icon for Screenshot -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h4l2-3h6l2 3h4v13H3V7z" />
-          <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-        <span>Capture Routine</span>
-        <svg id="screenshot-spinner" class="hidden ml-2 h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
-      </button>
+    <div class="flex items-center justify-between mb-8">
+      <!-- Left Group: Get Routine ID -->
+      <div>
+        <button id="get-id-btn" class="flex items-center bg-purple-600 text-white rounded-full px-6 py-2 hover:bg-purple-500 transition shadow">
+          <!-- Plus Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Get Routine ID</span>
+        </button>
+      </div>
+      <!-- Right Group: Generate and Capture Routine -->
+      <div class="flex gap-6">
+        <button id="generate-btn" class="flex items-center bg-blue-600 text-white rounded-full px-8 py-2 hover:bg-blue-500 transition shadow">
+          <!-- Gear Icon (will spin when generating) -->
+          <svg xmlns="http://www.w3.org/2000/svg" id="generate-icon" class="h-5 w-5 mr-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+          <span>Generate Routine</span>
+        </button>
+        <button id="screenshot-btn" class="flex items-center bg-green-600 text-white rounded-full px-8 py-2 hover:bg-green-500 transition shadow">
+          <!-- Camera Icon for Screenshot -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h4l2-3h6l2 3h4v13H3V7z" />
+            <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+          <span>Capture Routine</span>
+          <svg id="screenshot-spinner" class="hidden ml-2 h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Routine Table -->
@@ -84,7 +97,6 @@
   <script>
     (function() {
       // --- Global Variables and Cached DOM Elements ---
-      // Added an extra color (#3498db) for more than 10 users.
       const userColors = ['#8e44ad', '#27ae60', '#2980b9', '#d35400', '#c0392b',
                           '#f39c12', '#16a085', '#2c3e50', '#7f8c8d', '#e74c3c', '#3498db'];
       const MAX_USERS = 16;
@@ -103,6 +115,7 @@
       const generateIcon = document.getElementById('generate-icon');
       const screenshotBtn = document.getElementById('screenshot-btn');
       const screenshotSpinner = document.getElementById('screenshot-spinner');
+      const getIdBtn = document.getElementById('get-id-btn');
       const routineTableBody = document.getElementById('routine-table-body');
 
       // --- Helper Functions ---
@@ -240,30 +253,36 @@
         }, 1000);
       }
 
+      function handleGetID() {
+        // Redirect to the specified URL
+        window.location.href = 'https://itzmrz.github.io/Eniamza-PrePrereg-on-Steroids/';
+      }
+
       // Add two new user input cards per click (or one if only one slot remains)
       function addUserInputCards() {
-    const remaining = MAX_USERS - userCount;
-    const cardsToAdd = remaining >= 2 ? 2 : 1;
-    for (let i = 0; i < cardsToAdd; i++) {
-        const color = userColors[userCount % userColors.length];
-        const userCard = document.createElement('div');
-        userCard.className = 'flex items-center bg-gray-700 p-4 rounded-lg space-x-4';
-        userCard.innerHTML = `
+        const remaining = MAX_USERS - userCount;
+        const cardsToAdd = remaining >= 2 ? 2 : 1;
+        for (let i = 0; i < cardsToAdd; i++) {
+          const color = userColors[userCount % userColors.length];
+          const userCard = document.createElement('div');
+          userCard.className = 'flex items-center bg-gray-700 p-4 rounded-lg space-x-4';
+          // Updated input markup: less rounded, equal width for both inputs, less vertical padding, and no resize on the textarea.
+          userCard.innerHTML = `
             <div class="flex-1 flex space-x-4">
-                <input type="text" class="w-[40%] bg-gray-600 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Name">
-                <input type="text" class="w-[60%] bg-gray-600 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Routine ID JSON">
+              <input type="text" class="w-1/2 bg-gray-600 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Name">
+              <textarea class="w-1/2 bg-gray-600 rounded-md resize-none px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Routine ID JSON"></textarea>
             </div>
-        `;
-        // Add color sample to the left
-        const colorSample = document.createElement('div');
-        colorSample.className = 'user-color-sample';
-        colorSample.style.backgroundColor = color;
-        userCard.insertBefore(colorSample, userCard.firstChild);
+          `;
+          // Add color sample to the left
+          const colorSample = document.createElement('div');
+          colorSample.className = 'user-color-sample';
+          colorSample.style.backgroundColor = color;
+          userCard.insertBefore(colorSample, userCard.firstChild);
 
-        userInputsContainer.appendChild(userCard);
-        userCount++;
-    }
-}
+          userInputsContainer.appendChild(userCard);
+          userCount++;
+        }
+      }
 
       // --- Initialization ---
       document.addEventListener('DOMContentLoaded', () => {
@@ -273,6 +292,7 @@
         addUserBtn.addEventListener('click', addUserInputCards);
         generateBtn.addEventListener('click', handleGenerate);
         screenshotBtn.addEventListener('click', handleScreenshot);
+        getIdBtn.addEventListener('click', handleGetID);
       });
     })();
   </script>
