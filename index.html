@@ -233,17 +233,25 @@
       }
 
       function captureScreenshot() {
-        html2canvas(document.querySelector("#combined-routine"), {
-          scale: window.devicePixelRatio,
-          scrollY: -window.scrollY,
-        }).then(canvas => {
-          const link = document.createElement('a');
-          link.download = 'routine-screenshot.png';
-          link.href = canvas.toDataURL();
-          link.click();
-        }).catch(error => console.error('Screenshot capture failed:', error));
+  const target = document.querySelector("#combined-routine");
+  const rect = target.getBoundingClientRect();
+  html2canvas(target, {
+    scale: window.devicePixelRatio,
+    width: rect.width,
+    height: rect.height,
+    // Use the element’s top position to avoid issues with scrolling on mobile
+    y: rect.top + window.scrollY,
+    // Set windowWidth to the actual document width for proper rendering on mobile
+    windowWidth: document.documentElement.offsetWidth,
+    // Enable CORS if you have external images/fonts
+    useCORS: true
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'routine-screenshot.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  }).catch(error => console.error('Screenshot capture failed:', error));
       }
-
       // --- Event Handlers ---
       function handleGenerate() {
         generateBtn.disabled = true;
