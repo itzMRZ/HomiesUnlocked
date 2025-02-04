@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomiesUnlocked</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Use the latest html2canvas version -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     .user-color-sample {
@@ -25,26 +24,6 @@
     #tagline {
       animation: lightning 1s ease-out forwards;
     }
-    /* Ensure table text stays legible on mobile */
-    table td, table th {
-      font-size: 0.8rem;
-    }
-    /* Fixed-ratio screenshot container (16:9) with fixed background */
-    #screenshot-container {
-      width: 100%;
-      max-width: 800px;
-      aspect-ratio: 16 / 9;
-      background-color: #1F2937; /* Tailwind gray-800 */
-      position: relative;
-      margin: 0 auto;
-    }
-    /* Make sure the routine area fills the container */
-    #combined-routine {
-      position: absolute;
-      inset: 0;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
   </style>
 </head>
 <body class="bg-gray-900 text-white font-sans">
@@ -55,11 +34,11 @@
   </header>
 
   <!-- Main Container -->
-  <div class="container mx-auto p-4 sm:p-6">
+  <div class="container mx-auto p-4 md:p-6">
     <!-- User Input Section -->
-    <div class="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md mb-6">
-      <!-- Grid with one column on mobile and two on larger screens -->
-      <div id="user-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    <div class="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md mb-8">
+      <!-- Responsive Grid: 1 column on small screens, 2 on medium+ -->
+      <div id="user-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       <div class="flex justify-center mt-4">
         <button id="add-user-btn" class="bg-gray-700 text-gray-300 rounded-full px-4 py-2 hover:bg-gray-600 transition shadow">
           + Add More Users
@@ -68,24 +47,29 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-      <!-- Get Routine ID -->
-      <button id="get-id-btn" class="flex items-center bg-purple-600 text-white rounded-full px-6 py-2 hover:bg-purple-500 transition shadow">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        <span>Get Routine ID</span>
-      </button>
-      <!-- Generate and Capture Routine -->
-      <div class="flex gap-4">
-        <button id="generate-btn" class="flex items-center bg-blue-600 text-white rounded-full px-6 py-2 hover:bg-blue-500 transition shadow">
+    <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+      <!-- Left Group: Get Routine ID -->
+      <div>
+        <button id="get-id-btn" class="flex items-center bg-purple-600 text-white rounded-full px-6 py-2 hover:bg-purple-500 transition shadow">
+          <!-- Plus Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Get Routine ID</span>
+        </button>
+      </div>
+      <!-- Right Group: Generate and Capture Routine -->
+      <div class="flex gap-6">
+        <button id="generate-btn" class="flex items-center bg-blue-600 text-white rounded-full px-8 py-2 hover:bg-blue-500 transition shadow">
+          <!-- Gear Icon (will spin when generating) -->
           <svg xmlns="http://www.w3.org/2000/svg" id="generate-icon" class="h-5 w-5 mr-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
           </svg>
           <span>Generate Routine</span>
         </button>
-        <button id="screenshot-btn" class="flex items-center bg-green-600 text-white rounded-full px-6 py-2 hover:bg-green-500 transition shadow">
+        <button id="screenshot-btn" class="flex items-center bg-green-600 text-white rounded-full px-8 py-2 hover:bg-green-500 transition shadow">
+          <!-- Camera Icon for Screenshot -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h4l2-3h6l2 3h4v13H3V7z" />
             <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -99,27 +83,24 @@
       </div>
     </div>
 
-    <!-- Routine Screenshot Container (Fixed Ratio and Background) -->
-    <div id="screenshot-container" class="mb-12">
-      <!-- Routine Table Container -->
-      <div id="combined-routine" class="bg-gray-800 rounded-lg shadow-lg overflow-x-auto">
-        <div class="text-2xl font-bold text-center mb-4">Combined Routine</div>
+    <!-- Routine Table -->
+    <div id="combined-routine" class="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+      <div class="text-2xl font-bold text-center mb-4">Combined Routine</div>
+      <div class="overflow-x-auto">
         <table class="min-w-full bg-gray-800 text-gray-300 border-collapse">
-          <thead class="bg-gray-700">
+          <thead>
             <tr>
-              <th class="p-2 border border-gray-600">Time</th>
-              <th class="p-2 border border-gray-600">Sun</th>
-              <th class="p-2 border border-gray-600">Mon</th>
-              <th class="p-2 border border-gray-600">Tue</th>
-              <th class="p-2 border border-gray-600">Wed</th>
-              <th class="p-2 border border-gray-600">Thu</th>
-              <th class="p-2 border border-gray-600">Fri</th>
-              <th class="p-2 border border-gray-600">Sat</th>
+              <th class="p-2 border border-gray-700">Time</th>
+              <th class="p-2 border border-gray-700">Sun</th>
+              <th class="p-2 border border-gray-700">Mon</th>
+              <th class="p-2 border border-gray-700">Tue</th>
+              <th class="p-2 border border-gray-700">Wed</th>
+              <th class="p-2 border border-gray-700">Thu</th>
+              <th class="p-2 border border-gray-700">Fri</th>
+              <th class="p-2 border border-gray-700">Sat</th>
             </tr>
           </thead>
-          <tbody id="routine-table-body">
-            <!-- Time slots will be generated even if empty -->
-          </tbody>
+          <tbody id="routine-table-body"></tbody>
         </table>
       </div>
     </div>
@@ -200,17 +181,17 @@
       }
 
       function generateRoutine() {
-        // Initialize schedule with empty arrays for each day slot
+        // Initialize schedule
         const schedule = {};
         timeSlots.forEach(slot => {
           schedule[slot] = { Sun: [], Mon: [], Tue: [], Wed: [], Thu: [], Fri: [], Sat: [] };
         });
 
         // Process each user input card
-        document.querySelectorAll('#user-inputs > div').forEach((card) => {
+        document.querySelectorAll('#user-inputs > div').forEach((card, idx) => {
           const nameInput = card.querySelector('input');
           const jsonInput = card.querySelector('textarea');
-          const color = userColors[(Array.from(card.parentNode.children).indexOf(card)) % userColors.length];
+          const color = userColors[idx % userColors.length];
           if (!nameInput.value.trim() || !jsonInput.value.trim()) return;
           try {
             const data = JSON.parse(jsonInput.value.trim());
@@ -228,17 +209,17 @@
           }
         });
 
-        // Rebuild the routine table body – even if no sessions, time slots and day headers will show
+        // Rebuild the routine table
         routineTableBody.innerHTML = '';
         timeSlots.forEach(slot => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td class="p-2 border border-gray-600 whitespace-nowrap">${slot}</td>`;
+          tr.innerHTML = `<td class="p-2 border border-gray-700 whitespace-nowrap">${slot}</td>`;
           ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
             const td = document.createElement('td');
-            td.className = 'p-2 border border-gray-600 align-top';
-            // Even if the slot is empty, we leave the cell so that the header shows date-time info.
+            td.className = 'p-2 border border-gray-700 align-top';
             schedule[slot][day].forEach(entry => {
               const div = document.createElement('div');
+              // Single-line text with ellipsis
               div.className = 'text-xs mb-1 rounded p-1 whitespace-nowrap overflow-hidden text-ellipsis';
               div.style.backgroundColor = entry.color;
               div.style.color = entry.textColor;
@@ -251,21 +232,16 @@
         });
       }
 
-      // Improved screenshot function that always captures the fixed-ratio container
       function captureScreenshot() {
-        const target = document.getElementById("screenshot-container");
-        // Optional delay to ensure rendering is complete
-        setTimeout(() => {
-          html2canvas(target, {
-            backgroundColor: "#1F2937", // fixed background color (Tailwind gray-800)
-            useCORS: true
-          }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'routine-screenshot.png';
-            link.href = canvas.toDataURL();
-            link.click();
-          }).catch(error => console.error('Screenshot capture failed:', error));
-        }, 300);
+        html2canvas(document.querySelector("#combined-routine"), {
+          scale: window.devicePixelRatio,
+          scrollY: -window.scrollY,
+        }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = 'routine-screenshot.png';
+          link.href = canvas.toDataURL();
+          link.click();
+        }).catch(error => console.error('Screenshot capture failed:', error));
       }
 
       // --- Event Handlers ---
@@ -290,6 +266,7 @@
       }
 
       function handleGetID() {
+        // Redirect to the specified URL
         window.location.href = 'https://itzmrz.github.io/Eniamza-PrePrereg-on-Steroids/';
       }
 
@@ -300,17 +277,20 @@
         for (let i = 0; i < cardsToAdd; i++) {
           const color = userColors[userCount % userColors.length];
           const userCard = document.createElement('div');
-          userCard.className = 'flex items-center bg-gray-700 p-3 rounded-lg space-x-3';
+          userCard.className = 'flex items-center bg-gray-700 p-4 rounded-lg space-x-4';
+          // Updated input markup: less rounded, equal width for both inputs, less vertical padding, and no resize on the textarea.
           userCard.innerHTML = `
-            <div class="flex-1 flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div class="flex-1 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
               <input type="text" class="w-full sm:w-1/2 bg-gray-600 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Name">
               <textarea class="w-full sm:w-1/2 bg-gray-600 rounded-md resize-none px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Routine ID JSON"></textarea>
             </div>
           `;
+          // Add color sample to the left
           const colorSample = document.createElement('div');
           colorSample.className = 'user-color-sample';
           colorSample.style.backgroundColor = color;
           userCard.insertBefore(colorSample, userCard.firstChild);
+
           userInputsContainer.appendChild(userCard);
           userCount++;
         }
@@ -318,6 +298,7 @@
 
       // --- Initialization ---
       document.addEventListener('DOMContentLoaded', () => {
+        // Add initial 4 user cards (2 rows of 2 columns on medium screens, 4 rows on small screens)
         addUserInputCards();
         addUserInputCards();
         addUserBtn.addEventListener('click', addUserInputCards);
@@ -328,11 +309,12 @@
     })();
   </script>
   <footer class="bg-gray-800 p-4 text-center fixed bottom-0 w-full shadow-lg">
-    <a href="https://github.com/itzMRZ" class="text-white hover:text-blue-400 transition-colors duration-300 text-sm font-bold flex items-center justify-center gap-2">
-      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
-      </svg>
-      By MRZ
+    <a href="https://github.com/itzMRZ"
+       class="text-white hover:text-blue-400 transition-colors duration-300 text-sm font-bold flex items-center justify-center gap-2">
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
+        </svg>
+        By MRZ
     </a>
   </footer>
 </body>
