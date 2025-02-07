@@ -105,7 +105,7 @@
       font-size: 1.5rem;
       line-height: 1;
     }
-    /* Keyboard key styling */
+    /* Keyboard key styling (fixed for yellow notice) */
     kbd {
       display: inline-block;
       padding: 0.2rem 0.4rem;
@@ -126,32 +126,33 @@
       --text-color: #e2e8f0;
       --header-bg: #2a4365;
       --card-bg: #2d3748;
-      --routine-bg: #34495e;
+      --routine-bg: #34495e; /* dark theme routine card */
       --button-bg: #4a5568;
       --button-hover: #718096;
       --table-border: #4a5568;
       --input-card-bg: #334155;
       --input-card-text: #e2e8f0;
       --footer-bg: #1a202c;
+      /* Notice (hot yellow) */
       --notice-bg: #f59e0b;
       --notice-text: #1a202c;
       --input-border: #4a5568;
     }
     [data-theme="light"] {
-      --bg-color: #fafafa;
-      --text-color: #444444;
-      --header-bg: #e0f7fa;
+      --bg-color: #f0f0f0;
+      --text-color: #333333;
+      --header-bg: #d9edf7;
       --card-bg: #ffffff;
-      --routine-bg: #fdfdfd;
-      --button-bg: #f1f5f9;
-      --button-hover: #dce4ec;
-      --table-border: #e2e8f0;
-      --input-card-bg: #f1f5f9;
-      --input-card-text: #444444;
-      --footer-bg: #fafafa;
-      --notice-bg: #fff3cd;
-      --notice-text: #856404;
-      --input-border: #e2e8f0;
+      --routine-bg: #ffffff;
+      --button-bg: #e2e8f0;
+      --button-hover: #d1dce0;
+      --table-border: #cccccc;
+      --input-card-bg: #f8f8f8;
+      --input-card-text: #333333;
+      --footer-bg: #f0f0f0;
+      --notice-bg: #f59e0b;
+      --notice-text: #1a202c;
+      --input-border: #cccccc;
     }
     [data-theme="pink"] {
       --bg-color: #ffe1f0;
@@ -300,17 +301,6 @@
     .theme-text {
       margin-left: 0.5rem;
     }
-    /* Mobile improvements */
-    @media (max-width: 640px) {
-      /* Make table font smaller to fit mobile view */
-      #combined-routine table {
-        font-size: 0.75rem;
-      }
-      /* Force table to fit full width without horizontal scrolling */
-      #combined-routine {
-        overflow-x: visible !important;
-      }
-    }
   </style>
 </head>
 <body data-theme="dark" class="min-h-screen">
@@ -329,7 +319,7 @@
   </div>
 
   <!-- Combined "Get Routine ID" and "How to use" row -->
-  <div class="flex flex-col sm:flex-row justify-center items-center my-4 gap-4">
+  <div class="flex justify-center items-center my-4 gap-4">
     <button id="get-id-btn" class="flex items-center btn-hover rounded-full px-6 py-2 transition shadow" style="background-color: #6b46c1; color: white;">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -395,9 +385,8 @@
       <h2 class="text-2xl font-bold text-center mb-3" style="color: var(--text-color);">
         Combined Routine
       </h2>
-      <!-- Remove horizontal scrolling for mobile by using table-fixed -->
-      <div class="w-full">
-        <table class="w-full table-fixed border-collapse mx-auto" style="color: var(--text-color);">
+      <div class="overflow-x-auto">
+        <table class="w-full table-auto border-collapse mx-auto" style="color: var(--text-color);">
           <thead>
             <tr>
               <th class="p-2 text-center" style="border: 1px solid var(--table-border);">Time</th>
@@ -425,7 +414,7 @@
       </div>
       <div class="ack-content">
         <p class="text-sm">
-          <span class="block">This site owes its existence to the invaluable support and resources of Tasubai,</span>
+          <span class="block">This site owes its existence to the invaluable support and resources of Tashfeen,</span>
           <span class="block">aka <a href="https://github.com/Eniamza" class="inline-flex items-center gap-1 font-bold transition-colors duration-300" target="_blank" rel="noopener noreferrer">
             <i class="bi bi-github"></i> Eniamza
           </a>.</span>
@@ -437,10 +426,11 @@
           </a>.</span>
         </p>
       </div>
+
     </div>
   </div>
 
-  <!-- Old MRZ Footer -->
+  <!-- Footer with GitHub link as </Code> -->
   <footer class="text-center fixed bottom-0 left-0 right-0 shadow-lg">
     <a href="https://github.com/itzMRZ" class="flex items-center justify-center gap-2 text-sm font-bold transition-colors duration-300">
       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -452,43 +442,28 @@
     </a>
   </footer>
 
-  <!-- Enhanced How to Use Modal -->
+
+
+
+  <!-- How to Use Modal -->
   <div id="how-to-modal" class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
-        <h2 class="text-2xl font-bold">How to Use HomiesUnlocked</h2>
-        <span id="modal-close" class="modal-close cursor-pointer">&times;</span>
+        <h2 class="text-xl font-bold">How to Use</h2>
+        <span id="modal-close" class="modal-close">&times;</span>
       </div>
-      <div class="modal-body mt-4 text-base space-y-4">
-        <ol class="list-decimal pl-6 space-y-3">
-          <li>
-            <strong>Retrieve Your Course ID:</strong>
-            Click on the <a href="https://itzmrz.github.io/Eniamza-PrePrereg-on-Steroids/" class="inline-flex items-center bg-purple-600 text-white rounded-full px-3 py-1 hover:bg-purple-500 transition shadow" target="_blank" rel="noopener noreferrer">+ Get Course ID</a> button.
-          </li>
-          <li>
-            <strong>Create Your Routine:</strong>
-            Build your routine on PrePreReg as you normally would.
-          </li>
-          <li>
-            <strong>Share Routine IDs:</strong>
-            Copy your routine ID and ask your friends to do the same.
-          </li>
-          <li>
-            <strong>Enter Details:</strong>
-            Paste each friend’s name and routine ID into the provided input fields.
-          </li>
-          <li>
-            <strong>Generate the Combined Routine:</strong>
-            Click the <em>Generate Routine</em> button to view your consolidated schedule.
-          </li>
-          <li>
-            <strong>Capture a Screenshot:</strong>
-            Click the <em>Capture Routine</em> button to save an image of your schedule (PC or mobile use is recommended).
-          </li>
+      <div class="modal-body mt-3 text-sm space-y-3">
+        <ol class="list-decimal pl-5 space-y-2">
+          <li>Click on the <a href="https://itzmrz.github.io/Eniamza-PrePrereg-on-Steroids/" class="inline-flex items-center bg-purple-600 text-white rounded-full px-3 py-1 hover:bg-purple-500 transition shadow text-sm" target="_blank" rel="noopener noreferrer">+ Get course ID</a>.</li>
+          <li>Create your routine as you normally do on PrePreReg.</li>
+          <li>Once finished, copy your routine ID and have your friends do the same.</li>
+          <li>Input name and routine ID here on the site.</li>
+          <li>Finally, enter your friends’ (max 16) nicknames and routine IDs on this site and click Generate Routine.</li>
         </ol>
-        <div class="border-t border-gray-500 pt-3">
+        <div class="border-t border-gray-500 pt-2">
           <p class="text-red-500 font-semibold text-center">
-            Note: The screenshot feature may not work perfectly on all devices. We recommend using a PC for best results.
+            <span class="font-semibold">Please Note:</span> The screenshot button might not work as expected.
+            It is recommended to use a PC and manually capture a screenshot.
           </p>
         </div>
       </div>
@@ -617,7 +592,7 @@
       }
 
       function captureScreenshot() {
-        // Adjust styles for screenshot: increase padding and font size
+        // Adjust styles for screenshot: increase padding (with extra bottom) and font size
         const entries = document.querySelectorAll('.routine-entry');
         entries.forEach(entry => {
           entry.style.padding = '0.6rem 0.1rem 1.5rem 0.1rem'; // top/right/bottom/left
@@ -625,7 +600,7 @@
           entry.style.whiteSpace = 'normal';
           entry.style.overflow = 'visible';
           entry.style.textOverflow = 'clip';
-          entry.style.lineHeight = '1.3rem';
+          entry.style.lineHeight = '.1rem';
         });
         const node = document.getElementById('combined-routine');
         html2canvas(node, { scale: 2.5, useCORS: true })
@@ -701,7 +676,6 @@
       document.addEventListener('DOMContentLoaded', () => {
         addUserInputCards();
         addUserInputCards();
-        generateRoutine(); // Preload table on page load
         addUserBtn.addEventListener('click', addUserInputCards);
         generateBtn.addEventListener('click', handleGenerate);
         screenshotBtn.addEventListener('click', handleScreenshot);
@@ -767,12 +741,11 @@
     });
     applyTheme('dark');
   </script>
-
-  <!-- Code Icon (placed at the very end as a separate block) -->
-  <div class="flex justify-center mt-8">
+  <div class="fixed bottom-0 right-0 m-4">
     <a href="https://github.com/itzMRZ/HomiesUnlocked" class="text-2xl font-bold text-white">
       &lt;/&gt;
     </a>
   </div>
+
 </body>
 </html>
