@@ -105,7 +105,7 @@
       font-size: 1.5rem;
       line-height: 1;
     }
-    /* Keyboard key styling (fixed for yellow notice) */
+    /* Keyboard key styling */
     kbd {
       display: inline-block;
       padding: 0.2rem 0.4rem;
@@ -126,14 +126,13 @@
       --text-color: #e2e8f0;
       --header-bg: #2a4365;
       --card-bg: #2d3748;
-      --routine-bg: #34495e; /* dark theme routine card */
+      --routine-bg: #34495e;
       --button-bg: #4a5568;
       --button-hover: #718096;
       --table-border: #4a5568;
       --input-card-bg: #334155;
       --input-card-text: #e2e8f0;
       --footer-bg: #1a202c;
-      /* Notice (hot yellow) */
       --notice-bg: #f59e0b;
       --notice-text: #1a202c;
       --input-border: #4a5568;
@@ -183,9 +182,12 @@
     .logo-title {
       font-family: 'Orbitron', sans-serif;
       font-weight: 700;
-      font-size: 2.5rem;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      transition: font-size 0.4s ease;
+      font-size: 1.8rem;
+    }
+    @media (min-width: 768px) {
+      .logo-title {
+        font-size: 3rem;
+      }
     }
     [data-theme="pink"] .logo-title {
       font-size: 3.1rem;
@@ -238,7 +240,7 @@
       border-color: var(--button-hover);
       box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.4);
     }
-    /* Routine entry styling (on-screen) */
+    /* Routine entry styling */
     .routine-entry {
       padding: 0.25rem 0.5rem;
       text-align: center;
@@ -248,11 +250,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
       font-size: 0.75rem;
-    }
-    /* Modern button hover */
-    .btn-hover:hover {
-      transform: scale(1.03);
-      filter: brightness(1.1);
     }
     /* Routine Card styling */
     #combined-routine {
@@ -278,10 +275,10 @@
       padding: 0.5rem 0;
       transition: background-color 0.4s ease, color 0.4s ease;
     }
-    /* Fixed-width Theme Switcher Button Styles */
+    /* Theme Switcher Button Styles */
     .theme-switcher {
       height: 42px;
-      width: 100px;
+      width: 100px; /* fixed width on desktop */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -301,25 +298,62 @@
     .theme-text {
       margin-left: 0.5rem;
     }
+    /* Custom Alert */
+    .custom-alert {
+      transition: opacity 0.5s;
+    }
+    /* Responsive adjustments for mobile */
+    @media (max-width: 640px) {
+      /* Make input cards and buttons more compact */
+      .input-card {
+        padding: 0.5rem !important;
+        margin: 0.2rem !important;
+      }
+      .btn-hover {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.8rem !important;
+      }
+      /* Arrange action buttons side by side */
+      .action-buttons {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      /* Hide theme button text on mobile */
+      .theme-text {
+        display: none;
+      }
+    }
+    @media (min-width: 641px) {
+      /* On desktop, ensure the theme button stays fixed in size */
+      .theme-switcher {
+        width: 100px;
+        padding: 0;
+      }
+    }
+    .screenshot-mode {
+      width: 1024px;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body data-theme="dark" class="min-h-screen">
   <!-- Header -->
   <header class="shadow-lg text-center">
-    <h1 class="logo-title text-5xl font-bold">
+    <h1 class="logo-title text-3xl md:text-5xl font-bold">
       <span class="bracket">&lt;/</span>Homies<span class="unlocked">Unlocked</span><span class="bracket">&gt;</span>
     </h1>
     <p id="tagline" class="mt-2">More than a routine....</p>
   </header>
 
-  <!-- Yellow Notice -->
-  <div class="notice relative">
-    <span class="font-semibold">Please Note:</span> The screenshot button might not work as expected.
-    It is recommended to use a PC and press <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> to capture a screenshot.
+  <!-- Yellow Notice (with id for mobile update) -->
+  <div id="screenshot-notice" class="notice relative">
+    <span class="font-semibold">Please Note:</span> If the Screenshot Button fails, it is recommended to use a PC and press <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> to capture a screenshot.
   </div>
 
-  <!-- Combined "Get Routine ID" and "How to use" row -->
-  <div class="flex justify-center items-center my-4 gap-4">
+  <!-- Get Routine ID & How to Use Buttons -->
+  <div class="flex flex-wrap justify-center items-center my-4 gap-4">
     <button id="get-id-btn" class="flex items-center btn-hover rounded-full px-6 py-2 transition shadow" style="background-color: #6b46c1; color: white;">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -335,6 +369,7 @@
     </button>
   </div>
 
+  <!-- Main Container -->
   <div class="container mx-auto p-2 md:p-4">
     <!-- Input Section Card -->
     <div class="card input-card rounded-lg shadow-md mb-6">
@@ -346,23 +381,29 @@
       </div>
     </div>
 
-    <!-- Grid Row for Routine Actions -->
-    <div class="grid grid-cols-3 items-center mb-6 gap-4">
-      <!-- Left column intentionally left blank -->
-      <div></div>
-      <!-- Middle column: Generate Routine Button (centered) -->
-      <div class="flex justify-center">
-        <button id="generate-btn" class="flex items-center btn-hover rounded-full px-6 py-2 transition shadow" style="background-color: #3182ce; color: white;">
-          <svg xmlns="http://www.w3.org/2000/svg" id="generate-icon" class="h-5 w-5 mr-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83-2.83l.06.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-          </svg>
-          <span>Generate Routine</span>
-        </button>
-      </div>
-      <!-- Right column: Capture Routine and Theme Switcher -->
-      <div class="flex justify-end gap-4">
-        <button id="screenshot-btn" class="flex items-center btn-hover rounded-full px-6 py-2 transition shadow" style="background-color: #38a169; color: white;">
+    <!-- Routine Actions (wrapped in .action-buttons for mobile layout) -->
+    <div class="action-buttons flex gap-4 md:justify-between items-center mb-6">
+      <!-- Generate Routine Button -->
+      <button
+        id="generate-btn"
+        class="w-full md:w-auto flex items-center justify-center btn-hover rounded-full px-6 py-2 transition shadow"
+        style="background-color: #3182ce; color: white;"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" id="generate-icon" class="h-5 w-5 mr-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83-2.83l.06.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+        </svg>
+        <span>Generate Routine</span>
+      </button>
+
+      <!-- Container for Capture Routine & Theme Switcher -->
+      <div class="flex gap-4 items-center">
+        <!-- Capture Routine Button -->
+        <button
+          id="screenshot-btn"
+          class="w-full md:w-auto flex items-center justify-center btn-hover rounded-full px-6 py-2 transition shadow"
+          style="background-color: #38a169; color: white;"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h4l2-3h6l2 3h4v13H3V7z" />
             <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -374,7 +415,12 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
           </svg>
         </button>
-        <button id="theme-switcher" class="theme-switcher btn-hover">
+
+        <!-- Theme Switcher Button (text hidden on mobile) -->
+        <button
+          id="theme-switcher"
+          class="theme-switcher btn-hover flex items-center justify-center"
+        >
           <span class="theme-text">Dark</span>
         </button>
       </div>
@@ -426,11 +472,10 @@
           </a>.</span>
         </p>
       </div>
-
     </div>
   </div>
 
-  <!-- Footer with GitHub link as </Code> -->
+  <!-- Footer with GitHub link -->
   <footer class="text-center fixed bottom-0 left-0 right-0 shadow-lg">
     <a href="https://github.com/itzMRZ" class="flex items-center justify-center gap-2 text-sm font-bold transition-colors duration-300">
       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -441,9 +486,6 @@
       By MRZ
     </a>
   </footer>
-
-
-
 
   <!-- How to Use Modal -->
   <div id="how-to-modal" class="modal-overlay">
@@ -474,7 +516,7 @@
   <script>
     (function() {
       const userColors = ['#8e44ad', '#27ae60', '#2980b9', '#d35400', '#c0392b',
-                          '#f39c12', '#16a085', '#2c3e50', '#7f8c8d', '#e74c3c', '#3498db'];
+                            '#f39c12', '#16a085', '#2c3e50', '#7f8c8d', '#e74c3c', '#3498db'];
       const MAX_USERS = 16;
       let userCount = 0;
       const timeSlots = [
@@ -592,17 +634,18 @@
       }
 
       function captureScreenshot() {
-        // Adjust styles for screenshot: increase padding (with extra bottom) and font size
+        const node = document.getElementById('combined-routine');
+        node.classList.add('screenshot-mode');
         const entries = document.querySelectorAll('.routine-entry');
         entries.forEach(entry => {
-          entry.style.padding = '0.6rem 0.1rem 1.5rem 0.1rem'; // top/right/bottom/left
+          entry.style.padding = '0.001rem 0.01rem 1rem 0.001rem';
           entry.style.fontSize = '1rem';
           entry.style.whiteSpace = 'normal';
           entry.style.overflow = 'visible';
           entry.style.textOverflow = 'clip';
-          entry.style.lineHeight = '.1rem';
+          entry.style.lineHeight = '1.2rem';
         });
-        const node = document.getElementById('combined-routine');
+
         html2canvas(node, { scale: 2.5, useCORS: true })
           .then(canvas => {
             const dataUrl = canvas.toDataURL();
@@ -610,7 +653,7 @@
             link.download = 'routine-screenshot.png';
             link.href = dataUrl;
             link.click();
-            // Revert to on-screen styles.
+            node.classList.remove('screenshot-mode');
             entries.forEach(entry => {
               entry.style.padding = '0.25rem 0.5rem';
               entry.style.fontSize = '0.75rem';
@@ -622,7 +665,24 @@
           })
           .catch(err => {
             console.error('Screenshot capture failed:', err);
+            node.classList.remove('screenshot-mode');
           });
+      }
+
+      // Custom alert (modern style)
+      function showAlert(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'custom-alert fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50';
+        alertDiv.innerText = message;
+        document.body.appendChild(alertDiv);
+        setTimeout(() => {
+          alertDiv.style.opacity = '0';
+          setTimeout(() => {
+            if(alertDiv.parentNode) {
+              alertDiv.parentNode.removeChild(alertDiv);
+            }
+          }, 500);
+        }, 2000);
       }
 
       function handleGenerate() {
@@ -636,6 +696,10 @@
       }
 
       function handleScreenshot() {
+        if(routineTableBody.children.length === 0) {
+          showAlert("Please click 'Generate Routine' first.");
+          return;
+        }
         screenshotBtn.disabled = true;
         screenshotSpinner.classList.remove('hidden');
         captureScreenshot();
@@ -663,10 +727,11 @@
           const contentContainer = document.createElement('div');
           contentContainer.className = 'flex-1 p-3';
           contentContainer.innerHTML = `
-            <div class="input-row">
+            <div class="input-row flex flex-col md:flex-row gap-3">
               <input type="text" class="input-field" placeholder="Name">
               <textarea class="input-field" placeholder="Paste Routine ID Here"></textarea>
-            </div>`;
+            </div>
+          `;
           userCard.appendChild(contentContainer);
           userInputsContainer.appendChild(userCard);
           userCount++;
@@ -674,8 +739,13 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        addUserInputCards();
-        addUserInputCards();
+        // Load only 2 user input fields initially on mobile; otherwise load 4.
+        if(isMobileDevice()){
+          addUserInputCards();
+        } else {
+          addUserInputCards();
+          addUserInputCards();
+        }
         addUserBtn.addEventListener('click', addUserInputCards);
         generateBtn.addEventListener('click', handleGenerate);
         screenshotBtn.addEventListener('click', handleScreenshot);
@@ -741,11 +811,36 @@
     });
     applyTheme('dark');
   </script>
+
+  <!-- Mobile Detection Script (also adjusts screenshot notes) -->
+  <script>
+    function isMobileDevice() {
+      return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      if (isMobileDevice()) {
+        var noteElement = document.getElementById("screenshot-note");
+        if (noteElement) {
+          noteElement.innerText = "Please note: Using PC is recommended";
+        }
+        var yellowNotice = document.getElementById("screenshot-notice");
+        if (yellowNotice) {
+          yellowNotice.innerText = "Please note: Using PC is recommended";
+        }
+      }
+    });
+  </script>
+
+  <!-- Note at the bottom (will be updated on mobile) -->
+  <div id="screenshot-note">
+    Please Note: If the screenshot fails, use a PC and press <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> to capture a screenshot manually.
+  </div>
+
   <div class="fixed bottom-0 right-0 m-4">
     <a href="https://github.com/itzMRZ/HomiesUnlocked" class="text-2xl font-bold text-white">
       &lt;/&gt;
     </a>
   </div>
-
 </body>
 </html>
