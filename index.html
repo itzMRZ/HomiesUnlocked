@@ -384,23 +384,32 @@
     </div>
 
     <!-- Routine Actions (wrapped in .action-buttons for mobile layout) -->
-    <div class="action-buttons flex gap-4 md:justify-between items-center mb-6">
-      <!-- Generate Routine Button -->
-      <button
-        id="generate-btn"
-        class="w-full md:w-auto flex items-center justify-center btn-hover rounded-full px-6 py-2 transition shadow"
-        style="background-color: #3182ce; color: white;"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" id="generate-icon" class="h-5 w-5 mr-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83-2.83l.06.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-        </svg>
-        <span>Generate Routine</span>
-      </button>
-
-      <!-- Container for Capture Routine & Theme Switcher -->
-      <div class="flex gap-4 items-center">
-        <!-- Capture Routine Button -->
+    <div class="relative mb-6">
+      <!-- Generate Routine Button centered -->
+      <div class="flex justify-center">
+        <button
+          id="generate-btn"
+          class="w-full md:w-auto flex items-center justify-center btn-hover rounded-full px-6 py-2 transition shadow"
+          style="background-color: #3182ce; color: white;"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" id="generate-icon" class="h-5 w-5 mr-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33
+                  1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51
+                  1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83-2.83l.06.06
+                  a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0
+                  001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65
+                  1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0
+                  001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06
+                  a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0
+                  00-1.51 1z" />
+          </svg>
+          <span>Generate Routine</span>
+        </button>
+      </div>
+      <!-- Right-aligned group: Capture Routine and Theme Switcher -->
+      <div class="flex gap-4 justify-center md:absolute md:top-0 md:right-0 mt-4 md:mt-0">
         <button
           id="screenshot-btn"
           class="w-full md:w-auto flex items-center justify-center btn-hover rounded-full px-6 py-2 transition shadow"
@@ -418,7 +427,6 @@
           </svg>
         </button>
 
-        <!-- Theme Switcher Button (text hidden on mobile) -->
         <button
           id="theme-switcher"
           class="theme-switcher btn-hover flex items-center justify-center"
@@ -462,10 +470,10 @@
       </div>
       <div class="ack-content">
         <p class="text-sm">
-          <span class="block">This site owes its existence to the invaluable support and resources of Tashfeen,</span>
+          <span class="block">This site owes its existence to the invaluable support and resources of Tashfeen Vaia,
           <span class="block">aka <a href="https://github.com/Eniamza" class="inline-flex items-center gap-1 font-bold transition-colors duration-300" target="_blank" rel="noopener noreferrer">
             <i class="bi bi-github"></i> Eniamza
-          </a>.</span>
+          </a>.</span> </span>
         </p>
         <hr class="my-2 border-gray-500" />
         <p class="text-sm">
@@ -498,7 +506,7 @@
       </div>
       <div class="modal-body mt-3 text-sm space-y-3">
         <ol class="list-decimal pl-5 space-y-2">
-          <li>Click on the <a href="https://itzmrz.github.io/Eniamza-PrePrereg-on-Steroids/" class="inline-flex items-center bg-purple-600 text-white rounded-full px-3 py-1 hover:bg-purple-500 transition shadow text-sm" target="_blank" rel="noopener noreferrer">+ Get Routine ID</a>.</li>
+          <li>Click on the <a href="https://routine-id.itzmrz.xyz/" class="inline-flex items-center bg-purple-600 text-white rounded-full px-3 py-1 hover:bg-purple-500 transition shadow text-sm" target="_blank" rel="noopener noreferrer">+ Get Routine ID</a>.</li>
           <li>Create your routine as you normally do on PrePreReg.</li>
           <li>Once finished, copy your routine ID and have your friends do the same.</li>
           <li>Input name and routine ID here on the site.</li>
@@ -642,9 +650,10 @@
         entries.forEach(entry => {
           entry.style.padding = '0.001rem 0.01rem 1rem 0.001rem';
           entry.style.fontSize = '1rem';
-          entry.style.whiteSpace = 'normal';
-          entry.style.overflow = 'visible';
-          entry.style.textOverflow = 'clip';
+          // Force single line text
+          entry.style.whiteSpace = 'nowrap';
+          entry.style.overflow = 'hidden';
+          entry.style.textOverflow = 'ellipsis';
           entry.style.lineHeight = '1.2rem';
         });
 
@@ -712,7 +721,7 @@
       }
 
       function handleGetID() {
-        window.location.href = 'https://itzmrz.github.io/Eniamza-PrePrereg-on-Steroids/';
+        window.location.href = 'https://routine-id.itzmrz.xyz/';
       }
 
       function addUserInputCards() {
