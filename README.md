@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
-HomiesUnlocked is a project that uses routine IDs of one or multiple users from [HERE](https://routin-id.itzmrz.xyz) to create a combined routine, which you can download in three different themes.
+HomiesUnlocked is a project that uses routine IDs of one or multiple users from [HERE](https://routine-id.itzmrz.xyz) to create a combined routine, which you can download in three different themes.
 
 ## Usage
 Visit the [URL](https://homies-unlocked.itzmrz.xyz) to use this project.
