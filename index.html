@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAATq3sAAAAAAByZEQBEMPIAmHzrAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERERERERERERESIiIREREREgAAACIREREgREREAiEREQRDMzRAIhEREzEzMzQCERERMzEzNEAhERETMzMzQCEREREzMTNAIRERERMzM0AhERERETMTQCEREREREzRAIRERERERNAIREREREREQIRERERERERERERERERERERERH//wAA8H8AAMAfAACADwAAgAcAAMAHAADgAwAA8AMAAPgDAAD8AwAA/gMAAP8DAAD/hwAA/88AAP//AAD//wAA" rel="icon" type="image/x-icon">
+  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAATq3sAAAAAAByZEQBEMPIAmHzrAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERERERERERERESIiIREREREgAAACIREREgREREAiEREQRDMzRAIhEREzEzMzQCERERMzEzNEAhERETMzMzQCEREREzMTNAIRERERMzM0AhERERETMTQCEREREREzRAIRERERERNAIREREREREQIRERERERERERERERERERERERERERH//wAA8H8AAMAfAACADwAAgAcAAMAHAADgAwAA8AMAAPgDAAD8AwAA/gMAAP8DAAD/hwAA/88AAP//AAD//wAA" rel="icon" type="image/x-icon">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomiesUnlocked</title>
@@ -337,6 +337,45 @@
       width: 1024px;
       margin: 0 auto;
     }
+
+    .screenshot-mode {
+    width: 1024px;
+    margin: 0 auto;
+  }
+
+.screenshot-mode {
+  width: 1200px !important;
+  margin: 0 auto !important;
+  background-color: var(--routine-bg) !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+.screenshot-mode table {
+  width: 1200px !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.screenshot-mode td,
+.screenshot-mode th {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  border: 1px solid var(--table-border) !important;
+  padding: 8px !important;
+}
+
+.screenshot-mode .routine-entry {
+  min-height: 40px !important;
+  max-height: 60px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  margin: 0.25rem 0 !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
   </style>
 </head>
 <body data-theme="dark" class="min-h-screen">
@@ -644,41 +683,110 @@
       }
 
       function captureScreenshot() {
-        const node = document.getElementById('combined-routine');
-        node.classList.add('screenshot-mode');
-        const entries = document.querySelectorAll('.routine-entry');
-        entries.forEach(entry => {
-          entry.style.padding = '0.001rem 0.01rem 1rem 0.001rem';
-          entry.style.fontSize = '1rem';
-          // Force single line text
-          entry.style.whiteSpace = 'nowrap';
-          entry.style.overflow = 'hidden';
-          entry.style.textOverflow = 'ellipsis';
-          entry.style.lineHeight = '1.2rem';
-        });
+  // Get the existing routine data from the DOM
+  const routineTable = document.querySelector('#combined-routine');
+  if (!routineTable || !document.getElementById('routine-table-body').children.length) {
+    showAlert("Please generate the routine first!");
+    return;
+  }
 
-        html2canvas(node, { scale: 2.5, useCORS: true })
-          .then(canvas => {
-            const dataUrl = canvas.toDataURL();
-            const link = document.createElement('a');
-            link.download = 'routine-screenshot.png';
-            link.href = dataUrl;
-            link.click();
-            node.classList.remove('screenshot-mode');
-            entries.forEach(entry => {
-              entry.style.padding = '0.25rem 0.5rem';
-              entry.style.fontSize = '0.75rem';
-              entry.style.whiteSpace = 'nowrap';
-              entry.style.overflow = 'hidden';
-              entry.style.textOverflow = 'ellipsis';
-              entry.style.lineHeight = 'normal';
-            });
-          })
-          .catch(err => {
-            console.error('Screenshot capture failed:', err);
-            node.classList.remove('screenshot-mode');
-          });
+  const computedBg = getComputedStyle(document.documentElement)
+    .getPropertyValue('--routine-bg').trim() || '#34495e';
+
+  const container = document.createElement('div');
+  container.style.width = '1200px';
+  container.style.backgroundColor = computedBg;
+  container.style.padding = '20px';
+  // Instead of hiding via opacity, move the container off screen
+  container.style.position = 'fixed';
+  container.style.top = '0';
+  container.style.left = '-9999px';
+  container.style.opacity = '1';
+  container.style.pointerEvents = 'none';
+
+  const clonedTable = routineTable.cloneNode(true);
+  clonedTable.style.width = '1200px';
+  clonedTable.style.backgroundColor = computedBg;
+  clonedTable.style.padding = '20px';
+  clonedTable.style.borderRadius = '8px';
+
+  const table = clonedTable.querySelector('table');
+  if (table) {
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    table.style.tableLayout = 'fixed';
+  }
+
+  // Inline computed styles (replace CSS variables with their actual computed values)
+  const tableBorder = getComputedStyle(document.documentElement)
+    .getPropertyValue('--table-border').trim();
+  clonedTable.querySelectorAll('td, th').forEach(cell => {
+    cell.style.padding = '8px';
+    cell.style.border = `1px solid ${tableBorder}`;
+    cell.style.width = cell.textContent === 'Time' ? '160px' : '140px';
+  });
+
+  // Style routine entries as needed
+  clonedTable.querySelectorAll('.routine-entry').forEach(entry => {
+    entry.style.padding = '6px 8px';
+    entry.style.margin = '2px 0';
+    entry.style.borderRadius = '4px';
+    entry.style.fontSize = '12px';
+    entry.style.lineHeight = '1.4';
+    entry.style.whiteSpace = 'nowrap';
+    entry.style.overflow = 'hidden';
+    entry.style.textOverflow = 'ellipsis';
+  });
+
+  container.appendChild(clonedTable);
+  document.body.appendChild(container);
+
+  html2canvas(container, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: computedBg,
+    width: 1200,
+    height: container.offsetHeight,
+    windowWidth: 1200,
+    windowHeight: container.offsetHeight,
+    logging: false,
+    onclone: function(clonedDoc) {
+      const clonedContainer = clonedDoc.querySelector('div');
+      if (clonedContainer) {
+        clonedContainer.style.position = 'static';
+        clonedContainer.style.left = '0';
       }
+    }
+  }).then(canvas => {
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = 'HomiesUnlocked-Routine.png';
+    link.href = dataUrl;
+    link.click();
+    document.body.removeChild(container);
+    screenshotSpinner.classList.add('hidden');
+    screenshotBtn.disabled = false;
+  }).catch(err => {
+    console.error('Screenshot failed:', err);
+    showAlert('Screenshot failed. Please try again or use Win + Shift + S.');
+    document.body.removeChild(container);
+    screenshotSpinner.classList.add('hidden');
+    screenshotBtn.disabled = false;
+  });
+}
+
+function inlineComputedStyles(element, properties = [
+  'backgroundColor', 'color', 'border', 'borderRadius', 'boxShadow',
+  'padding', 'margin', 'fontSize', 'fontFamily'
+]) {
+  const computedStyle = window.getComputedStyle(element);
+  properties.forEach(prop => {
+    element.style[prop] = computedStyle.getPropertyValue(prop);
+  });
+  // Recursively apply to children
+  Array.from(element.children).forEach(child => inlineComputedStyles(child, properties));
+}
+
 
       // Custom alert (modern style)
       function showAlert(message) {
