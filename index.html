@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAATq3sAAAAAAByZEQBEMPIAmHzrAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERERERERERERESIiIREREREgAAACIREREgREREAiEREQRDMzRAIhEREzEzMzQCERERMzEzNEAhERETMzMzQCEREREzMTNAIRERERMzM0AhERERETMTQCEREREREzRAIRERERERNAIREREREREQIRERERERERERERERERERERERERERH//wAA8H8AAMAfAACADwAAgAcAAMAHAADgAwAA8AMAAPgDAAD8AwAA/gMAAP8DAAD/hwAA/88AAP//AAD//wAA" rel="icon" type="image/x-icon">
+  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAATq3sAAAAAAByZEQBEMPIAmHzrAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERERERERERERESIiIREREREgAAACIREREgREREAiEREQRDMzRAIhEREzEzMzQCERERMzEzNEAhERETMzMzQCEREREzMTNAIRERERMzM0AhERERETMTQCEREREREzRAIRERERERNAIREREREREQIRERERERERERERERERERERERERERERERERERH//wAA8H8AAMAfAACADwAAgAcAAMAHAADgAwAA8AMAAPgDAAD8AwAA/gMAAP8DAAD/hwAA/88AAP//AAD//wAA" rel="icon" type="image/x-icon">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomiesUnlocked</title>
@@ -549,7 +549,7 @@
           <li>Finally, enter your friends’ (max 16) nicknames and routine IDs on this site and click Generate Routine.</li>
         </ol>
         <div class="border-t border-gray-500 pt-2">
-          
+
         </div>
       </div>
     </div>
@@ -677,33 +677,37 @@
       }
 
       function captureScreenshot() {
-  // Get the existing routine data from the DOM
+  // Get the routine container to capture from the DOM
   const routineTable = document.querySelector('#combined-routine');
   if (!routineTable || !document.getElementById('routine-table-body').children.length) {
     showAlert("Please generate the routine first!");
     return;
   }
 
+  // Get computed background color for the routine (fallback if not set)
   const computedBg = getComputedStyle(document.documentElement)
     .getPropertyValue('--routine-bg').trim() || '#34495e';
 
+  // Create an off-screen container for the cloned routine table to capture
   const container = document.createElement('div');
   container.style.width = '1200px';
   container.style.backgroundColor = computedBg;
   container.style.padding = '20px';
-  // Instead of hiding via opacity, move the container off screen
+  // Position the container off-screen so it is not visible to the user
   container.style.position = 'fixed';
   container.style.top = '0';
   container.style.left = '-9999px';
   container.style.opacity = '1';
   container.style.pointerEvents = 'none';
 
+  // Clone the current routine table
   const clonedTable = routineTable.cloneNode(true);
   clonedTable.style.width = '1200px';
   clonedTable.style.backgroundColor = computedBg;
   clonedTable.style.padding = '20px';
   clonedTable.style.borderRadius = '8px';
 
+  // Configure the table layout for proper formatting in the screenshot
   const table = clonedTable.querySelector('table');
   if (table) {
     table.style.width = '100%';
@@ -711,32 +715,42 @@
     table.style.tableLayout = 'fixed';
   }
 
-  // Inline computed styles (replace CSS variables with their actual computed values)
+  // Get the actual border color for table cells from CSS variables
   const tableBorder = getComputedStyle(document.documentElement)
     .getPropertyValue('--table-border').trim();
+
+  // Apply inline styles to each table cell for a consistent appearance
   clonedTable.querySelectorAll('td, th').forEach(cell => {
     cell.style.padding = '8px';
     cell.style.border = `1px solid ${tableBorder}`;
-    cell.style.width = cell.textContent === 'Time' ? '160px' : '140px';
+    // If the cell header is "Time", set a specific width; otherwise, allow more room
+    cell.style.width = cell.textContent === 'Time' ? '160px' : '250px';
   });
 
-  // Style routine entries as needed
+  // For each routine-entry (the colored box showing the session info),
+  // apply custom styles that control padding, centering, font size, etc.
   clonedTable.querySelectorAll('.routine-entry').forEach(entry => {
-    entry.style.padding = '6px 8px';
-    entry.style.margin = '2px 0';
+    // Set custom padding values (top, bottom, left, right)
+    entry.style.paddingTop = '2px';
+    entry.style.paddingBottom = '12px';
+    entry.style.paddingLeft = '12px';
+    entry.style.paddingRight = '12px';
+    // Center text inside each colored box
+    entry.style.textAlign = 'center';
+    // Adjust font size to ensure readability in the screenshot
+    entry.style.fontSize = '14px';
+    // Optionally, you can add more style properties here if needed
+    entry.style.margin = '2px 2px';
     entry.style.borderRadius = '4px';
-    entry.style.fontSize = '12px';
-    entry.style.lineHeight = '1.4';
-    entry.style.whiteSpace = 'nowrap';
-    entry.style.overflow = 'hidden';
-    entry.style.textOverflow = 'ellipsis';
   });
 
+  // Append the cloned table into the container to prepare for capturing
   container.appendChild(clonedTable);
   document.body.appendChild(container);
 
+  // Use html2canvas to capture the styled container as an image
   html2canvas(container, {
-    scale: 2,
+    scale: 2.5,
     useCORS: true,
     backgroundColor: computedBg,
     width: 1200,
@@ -752,11 +766,13 @@
       }
     }
   }).then(canvas => {
+    // Once the canvas is generated, convert it to a data URL and trigger the download
     const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.download = 'HomiesUnlocked-Routine.png';
     link.href = dataUrl;
     link.click();
+    // Clean up the temporary container
     document.body.removeChild(container);
     screenshotSpinner.classList.add('hidden');
     screenshotBtn.disabled = false;
@@ -768,19 +784,6 @@
     screenshotBtn.disabled = false;
   });
 }
-
-function inlineComputedStyles(element, properties = [
-  'backgroundColor', 'color', 'border', 'borderRadius', 'boxShadow',
-  'padding', 'margin', 'fontSize', 'fontFamily'
-]) {
-  const computedStyle = window.getComputedStyle(element);
-  properties.forEach(prop => {
-    element.style[prop] = computedStyle.getPropertyValue(prop);
-  });
-  // Recursively apply to children
-  Array.from(element.children).forEach(child => inlineComputedStyles(child, properties));
-}
-
 
       // Custom alert (modern style)
       function showAlert(message) {
@@ -947,9 +950,7 @@ function inlineComputedStyles(element, properties = [
 
   <!-- Note at the bottom (will be updated on mobile) -->
   <div id="screenshot-note">
-    Please Note: The screenshot button might not work as expected. It is recommended to use a PC and press <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> to capture a screenshot.
-  </div>
-
+    NOTE : Desktop mode is not recommended on phones.
   <div class="fixed bottom-0 right-0 m-4">
     <a href="https://github.com/itzMRZ/HomiesUnlocked" class="text-2xl font-bold text-white">
       &lt;/&gt;
