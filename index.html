@@ -136,6 +136,21 @@
       --notice-bg: #f59e0b;
       --notice-text: #1a202c;
       --input-border: #4a5568;
+      /* Customizable variables for routine-entry (colors container) */
+      --routine-entry-padding: 0.25rem 0.5rem; /* Padding inside routine entry boxes */
+      --routine-entry-font-size: 0.75rem;         /* Font size of text inside routine entries */
+      --routine-entry-line-height: 1;             /* Line height of text inside routine entries */
+      --routine-entry-min-height: auto;           /* Minimum height of routine entries */
+      /* Updated routine entry padding variables for all 4 sides */
+      --routine-entry-padding-top: 2px;
+      --routine-entry-padding-right: 12px;
+      --routine-entry-padding-bottom: 12px;
+      --routine-entry-padding-left: 12px;
+      /* Update these values to change the padding for original table routine entries */
+      --routine-entry-padding-top: 5px;      /* Adjust this value */
+      --routine-entry-padding-right: 8px;    /* Adjust this value */
+      --routine-entry-padding-bottom: 4px;   /* Adjust this value */
+      --routine-entry-padding-left: 8px;     /* Adjust this value */
     }
     [data-theme="light"] {
       --bg-color: #f0f0f0;
@@ -222,6 +237,7 @@
       line-height: 1.5;
       height: 2.5rem;
     }
+    /* Flex container for side-by-side inputs */
     .input-row {
       display: flex;
       gap: 0.75rem;
@@ -236,47 +252,37 @@
       font-size: 0.9rem;
       outline: none;
       transition: border-color 0.3s ease;
+      margin-bottom: 0.5rem;
     }
     .input-field:focus {
       border-color: var(--button-hover);
       box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.4);
     }
-    .input-field {
-  width: 100%;
-  background-color: var(--input-card-bg);
-  color: var(--input-card-text);
-  border: 1px solid var(--input-border);
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.3s ease;
-  margin-bottom: 0.5rem;
-}
-
-.input-field:focus {
-  border-color: var(--button-hover);
-  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.4);
-}
-
-input.input-field {
-  height: 2.5rem;
-}
-
-textarea.input-field {
-  min-height: 5rem;
-  resize: vertical;
-}
-    /* Routine entry styling */
+    input.input-field {
+      height: 2.5rem;
+    }
+    textarea.input-field {
+      /* Removed fixed height for side-by-side layout; adjust as needed */
+      resize: vertical;
+    }
+    /* Routine entry styling - Customize these CSS variables to adjust the appearance of the colored routine entries */
     .routine-entry {
-      padding: 0.25rem 0.5rem;
+      /* Replace existing padding with individual sides */
+      padding-top: var(--routine-entry-padding-top);
+      padding-right: var(--routine-entry-padding-right);
+      padding-bottom: var(--routine-entry-padding-bottom);
+      padding-left: var(--routine-entry-padding-left);
+
+      /* ...rest of the existing properties... */
+      font-size: var(--routine-entry-font-size);
+      line-height: var(--routine-entry-line-height);
+      min-height: var(--routine-entry-min-height);
       text-align: center;
       border-radius: 0.25rem;
       margin-bottom: 0.25rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: 0.75rem;
     }
     /* Routine Card styling */
     #combined-routine {
@@ -393,11 +399,17 @@ textarea.input-field {
       white-space: normal !important;
       word-break: break-word !important;
     }
+    /* --- Updated Grid Layout for User Input Cards --- */
     #user-inputs {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
       padding: 1rem;
+    }
+    @media (max-width: 640px) {
+      #user-inputs {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -437,7 +449,7 @@ textarea.input-field {
   <div class="container mx-auto p-2 md:p-4">
     <!-- Input Section Card -->
     <div class="card input-card rounded-lg shadow-md mb-6">
-      <div id="user-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      <div id="user-inputs"></div>
       <div class="flex justify-center mt-3">
         <button id="add-user-btn" class="btn-hover rounded-full px-4 py-2 transition shadow" style="background-color: var(--button-bg); color: var(--text-color);">
           + Add More Users
@@ -459,8 +471,8 @@ textarea.input-field {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33
                   1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51
-                  1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83-2.83l.06.06
-                  a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0
+                  1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83-2.83l.06.06a1.65
+                  1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0
                   001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65
                   1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0
                   001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06
@@ -532,8 +544,8 @@ textarea.input-field {
       </div>
       <div class="ack-content">
         <p class="text-sm">
-  <span class="block">This site owes its existence to the invaluable support and resources of Tashfeen Vaia, aka <a href="https://github.com/Eniamza" class="inline-flex items-center gap-1 font-bold transition-colors duration-300" target="_blank" rel="noopener noreferrer"><i class="bi bi-github"></i> Eniamza</a>.</span>
-</p>
+          <span class="block">This site owes its existence to the invaluable support and resources of Tashfeen Vaia, aka <a href="https://github.com/Eniamza" class="inline-flex items-center gap-1 font-bold transition-colors duration-300" target="_blank" rel="noopener noreferrer"><i class="bi bi-github"></i> Eniamza</a>.</span>
+        </p>
         <hr class="my-2 border-gray-500" />
         <p class="text-sm">
           <span class="block">Another special thanks to <a href="https://github.com/mahathirmoon" class="inline-flex items-center gap-1 font-bold transition-colors duration-300" target="_blank" rel="noopener noreferrer">
@@ -572,7 +584,6 @@ textarea.input-field {
           <li>Finally, enter your friends’ (max 16) nicknames and routine IDs on this site and click Generate Routine.</li>
         </ol>
         <div class="border-t border-gray-500 pt-2">
-
         </div>
       </div>
     </div>
@@ -655,7 +666,7 @@ textarea.input-field {
         });
         document.querySelectorAll('#user-inputs > div').forEach((card, idx) => {
           const nameInput = card.querySelector('input');
-          const jsonInput = card.querySelector('textarea');
+          const jsonInput = card.querySelector('input[type="text"]:nth-child(2)');
           const color = userColors[idx % userColors.length];
           if (!nameInput.value.trim() || !jsonInput.value.trim()) return;
           try {
@@ -700,105 +711,102 @@ textarea.input-field {
       }
 
       function captureScreenshot() {
-  const currentTheme = document.body.getAttribute('data-theme');
-  const computedStyle = getComputedStyle(document.documentElement);
-  // Get updated theme colors dynamically
-  const routineBg = computedStyle.getPropertyValue('--routine-bg').trim();
-  const tableBorder = computedStyle.getPropertyValue('--table-border').trim();
-  const textColor = computedStyle.getPropertyValue('--text-color').trim();
-  const cardBg = computedStyle.getPropertyValue('--card-bg').trim();
+        const currentTheme = document.body.getAttribute('data-theme');
+        // Use document.body for computed styles to reflect current theme changes
+        const computedStyle = getComputedStyle(document.body);
+        // Get updated theme colors dynamically
+        const routineBg = computedStyle.getPropertyValue('--routine-bg').trim();
+        const tableBorder = computedStyle.getPropertyValue('--table-border').trim();
+        const textColor = computedStyle.getPropertyValue('--text-color').trim();
+        const cardBg = computedStyle.getPropertyValue('--card-bg').trim();
 
-  // Get the routine container and validate its presence
-  const routineTable = document.querySelector('#combined-routine');
-  if (!routineTable || !document.getElementById('routine-table-body').children.length) {
-    showAlert("Please generate the routine first!");
-    return;
-  }
+        const routineTable = document.querySelector('#combined-routine');
+        if (!routineTable || !document.getElementById('routine-table-body').children.length) {
+          showAlert("Please generate the routine first!");
+          return;
+        }
 
-  // Clone the routine table and update its styling to match the current theme
-  const clonedTable = routineTable.cloneNode(true);
-  // Remove extra container styling so only the table gets captured
-  clonedTable.style.width = '';
-  clonedTable.style.margin = '0';
-  clonedTable.style.padding = '0';
-  // Update table header styling
-  const tableHeader = clonedTable.querySelector('h2');
-  if (tableHeader) {
-    tableHeader.style.color = textColor;
-  }
-  // Update inner table styling if present
-  const innerTable = clonedTable.querySelector('table');
-  if (innerTable) {
-    innerTable.style.borderCollapse = 'collapse';
-    innerTable.style.tableLayout = 'auto';
-    innerTable.style.color = textColor;
-  }
-  // Update styling for cells
-  clonedTable.querySelectorAll('td, th').forEach(cell => {
-    cell.style.padding = '12px';
-    cell.style.border = `1px solid ${tableBorder}`;
-    cell.style.color = textColor;
-    cell.style.minWidth = cell.textContent.trim() === 'Time' ? '160px' : '260px';
-    cell.style.maxWidth = 'none';
-  });
-  // Update routine entries styling
-  clonedTable.querySelectorAll('.routine-entry').forEach(entry => {
-    entry.style.padding = '8px 14px';
-    entry.style.margin = '3px 0';
-    entry.style.borderRadius = '4px';
-    entry.style.fontSize = '13px';
-    entry.style.whiteSpace = 'nowrap';
-    entry.style.overflow = 'visible';
-    entry.style.textOverflow = 'clip';
-    entry.style.minHeight = '40px';
-    entry.style.display = 'inline-block';
-  });
+        const clonedTable = routineTable.cloneNode(true);
+        clonedTable.style.width = '';
+        clonedTable.style.margin = '0';
+        clonedTable.style.padding = '0';
+        const tableHeader = clonedTable.querySelector('h2');
+        if (tableHeader) {
+          tableHeader.style.color = textColor;
+        }
+        const innerTable = clonedTable.querySelector('table');
+        if (innerTable) {
+          innerTable.style.borderCollapse = 'collapse';
+          innerTable.style.tableLayout = 'auto';
+          innerTable.style.color = textColor;
+        }
+        clonedTable.querySelectorAll('td, th').forEach(cell => {
+          cell.style.padding = '12px';
+          cell.style.border = `1px solid ${tableBorder}`;
+          cell.style.color = textColor;
+          cell.style.minWidth = cell.textContent.trim() === 'Time' ? '160px' : '260px';
+          cell.style.maxWidth = 'none';
+        });
+        clonedTable.querySelectorAll('.routine-entry').forEach(entry => {
+          // Apply screenshot-specific padding values directly
+          entry.style.paddingTop = '8px';      // Customize this value
+          entry.style.paddingRight = '12px';    // Customize this value
+          entry.style.paddingBottom = '17px';    // Customize this value
+          entry.style.paddingLeft = '12px';     // Customize this value
 
-  // Append the cloned table off-screen so its actual size can be determined
-  clonedTable.style.position = 'fixed';
-  clonedTable.style.top = '-9999px';
-  clonedTable.style.left = '-9999px';
-  document.body.appendChild(clonedTable);
+          // Other screenshot-specific styles
+          entry.style.fontSize = '13px';
+          entry.style.minHeight = '40px';
+          entry.style.margin = '3px 0';
+          entry.style.borderRadius = '4px';
+          entry.style.whiteSpace = 'normal';    // Changed to normal for better text wrapping
+          entry.style.overflow = 'visible';
+          entry.style.textOverflow = 'clip';
+          entry.style.display = 'block';        // Changed to block for better spacing
+          entry.style.lineHeight = '1.4';
+        });
 
-  // Get the dimensions of the cloned table for cropping the canvas to only the table
-  const tableWidth = clonedTable.offsetWidth;
-  const tableHeight = clonedTable.offsetHeight;
+        clonedTable.style.position = 'fixed';
+        clonedTable.style.top = '-9999px';
+        clonedTable.style.left = '-9999px';
+        document.body.appendChild(clonedTable);
 
-  // Capture the screenshot with html2canvas using the table's dimensions only
-  html2canvas(clonedTable, {
-    scale: 2.0,
-    useCORS: true,
-    backgroundColor: routineBg,
-    width: tableWidth,
-    height: tableHeight,
-    windowWidth: tableWidth,
-    windowHeight: tableHeight,
-    logging: false,
-    onclone: function(clonedDoc) {
-      const clonedElem = clonedDoc.querySelector('table');
-      if (clonedElem) {
-        clonedElem.style.position = 'static';
+        const tableWidth = clonedTable.offsetWidth;
+        const tableHeight = clonedTable.offsetHeight;
+
+        html2canvas(clonedTable, {
+          scale: 2.0,
+          useCORS: true,
+          backgroundColor: routineBg,
+          width: tableWidth,
+          height: tableHeight,
+          windowWidth: tableWidth,
+          windowHeight: tableHeight,
+          logging: false,
+          onclone: function(clonedDoc) {
+            const clonedElem = clonedDoc.querySelector('table');
+            if (clonedElem) {
+              clonedElem.style.position = 'static';
+            }
+          }
+        }).then(canvas => {
+          const dataUrl = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.download = `HomiesUnlocked-Routine-${currentTheme}.png`;
+          link.href = dataUrl;
+          link.click();
+          document.body.removeChild(clonedTable);
+          screenshotSpinner.classList.add('hidden');
+          screenshotBtn.disabled = false;
+        }).catch(err => {
+          console.error('Screenshot failed:', err);
+          showAlert('Screenshot failed. Please try again or use Win + Shift + S.');
+          document.body.removeChild(clonedTable);
+          screenshotSpinner.classList.add('hidden');
+          screenshotBtn.disabled = false;
+        });
       }
-    }
-  }).then(canvas => {
-    const dataUrl = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = `HomiesUnlocked-Routine-${currentTheme}.png`;
-    link.href = dataUrl;
-    link.click();
-    document.body.removeChild(clonedTable);
-    screenshotSpinner.classList.add('hidden');
-    screenshotBtn.disabled = false;
-  }).catch(err => {
-    console.error('Screenshot failed:', err);
-    showAlert('Screenshot failed. Please try again or use Win + Shift + S.');
-    document.body.removeChild(clonedTable);
-    screenshotSpinner.classList.add('hidden');
-    screenshotBtn.disabled = false;
-  });
-}
 
-      // Custom alert (modern style)
       function showAlert(message) {
         const alertDiv = document.createElement('div');
         alertDiv.className = 'custom-alert fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50';
@@ -842,36 +850,48 @@ textarea.input-field {
         window.location.href = 'https://routine-id.itzmrz.xyz/';
       }
 
+      // Modified addUserInputCards to create a card with two side-by-side inputs.
       function addUserInputCards() {
-  const remaining = MAX_USERS - userCount;
-  const cardsToAdd = remaining >= 2 ? 2 : 1;
-  for (let i = 0; i < cardsToAdd; i++) {
-    const color = userColors[userCount % userColors.length];
-    const userCard = document.createElement('div');
-    userCard.className = 'input-card rounded-lg';
-    userCard.style.borderLeft = `4px solid ${color}`;
+        const remaining = MAX_USERS - userCount;
+        const cardsToAdd = remaining >= 2 ? 2 : 1;
+        for (let i = 0; i < cardsToAdd; i++) {
+          const color = userColors[userCount % userColors.length];
+          const userCard = document.createElement('div');
+          userCard.className = 'input-card rounded-lg';
+          userCard.style.borderLeft = `4px solid ${color}`;
 
-    // Name input
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.className = 'input-field mb-2';
-    nameInput.placeholder = 'Name';
+          // Create a flex container for side-by-side inputs
+          const inputRow = document.createElement('div');
+          inputRow.className = 'input-row';
 
-    // Textarea for routine ID
-    const textarea = document.createElement('textarea');
-    textarea.className = 'input-field h-20';
-    textarea.placeholder = 'Paste Routine ID Here';
+          // Name input
+          const nameInput = document.createElement('input');
+          nameInput.type = 'text';
+          nameInput.className = 'input-field';
+          nameInput.placeholder = 'Name';
+          nameInput.style.flex = '1';
+          nameInput.style.lineHeight = '1.25';
 
-    // Append elements
-    userCard.appendChild(nameInput);
-    userCard.appendChild(textarea);
-    userInputsContainer.appendChild(userCard);
-    userCount++;
-  }
-}
+          // Routine ID input
+          const routineInput = document.createElement('input');
+          routineInput.type = 'text';
+          routineInput.className = 'input-field';
+          routineInput.placeholder = 'Paste Routine ID Here';
+          routineInput.style.flex = '1';
+          routineInput.style.lineHeight = '1.25';
+
+          // Append the two inputs into the flex container
+          inputRow.appendChild(nameInput);
+          inputRow.appendChild(routineInput);
+
+          // Append the inputRow into the card
+          userCard.appendChild(inputRow);
+          userInputsContainer.appendChild(userCard);
+          userCount++;
+        }
+      }
 
       document.addEventListener('DOMContentLoaded', () => {
-        // Load only 2 user input fields initially on mobile; otherwise load 4.
         if(isMobileDevice()){
           addUserInputCards();
         } else {
@@ -897,7 +917,6 @@ textarea.input-field {
       arrow.classList.toggle('active');
     }
 
-    // Modal handling for How to Use
     const howToBtn = document.getElementById('how-to-btn');
     const howToModal = document.getElementById('how-to-modal');
     const modalClose = document.getElementById('modal-close');
@@ -966,7 +985,6 @@ textarea.input-field {
 
 <script defer data-domain="homies-unlocked.itzmrz.xyz" src="https://plausible.io/js/script.file-downloads.outbound-links.tagged-events.js"></script>
 <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-
 
   <!-- Note at the bottom (will be updated on mobile) -->
   <div id="screenshot-note">
