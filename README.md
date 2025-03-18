@@ -1,6 +1,7 @@
 # HomiesUnlocked
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/itzMRZ/HomiesUnlocked?utm_source=oss&utm_medium=github&utm_campaign=itzMRZ%2FHomiesUnlocked&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 ## Overview
 HomiesUnlocked is a project that uses routine IDs of one or multiple users from [HERE](https://routine-id.itzmrz.xyz) to create a combined routine, which you can download in three different themes.
