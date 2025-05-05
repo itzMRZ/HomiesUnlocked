@@ -4,23 +4,82 @@
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/itzMRZ/HomiesUnlocked?utm_source=oss&utm_medium=github&utm_campaign=itzMRZ%2FHomiesUnlocked&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 ## Overview
-HomiesUnlocked is a project that uses routine IDs of one or multiple users from [HERE](https://routine-id.itzmrz.xyz) to create a combined routine, which you can download in three different themes.
+HomiesUnlocked is a web application that combines multiple users' class routines into a single, comprehensive schedule. It allows users to quickly see overlapping schedules and coordinate with friends.
 
-## Usage
-Visit the [URL](https://homies-unlocked.itzmrz.xyz) to use this project.
+## Features
+- Combine up to 16 different user routines
+- Color-coded schedules for easy identification
+- Three visual themes (Dark, Light, and Pink)
+- Screenshot functionality to save and share routines
+- Local storage for saving progress
+- Mobile-responsive design
+
+## Demo
+Visit the [live application](https://homies-unlocked.itzmrz.xyz) to try it out.
+
+## How to Use
+1. Each user needs to get their own routine ID:
+   - Visit [Routine ID Generator](https://routine-id.itzmrz.xyz)
+   - Create your routine as you would on PrePreReg
+   - Copy your routine ID when finished
+2. On HomiesUnlocked:
+   - Enter each person's name and their routine ID
+   - Add more users with the "+ Add More Users" button
+   - Click "Generate Routine" to create the combined schedule
+   - Use the "Capture Routine" button to save a screenshot of the schedule
+
+## Project Structure
+```
+HomiesUnlocked/
+├── index.html              # Main HTML file
+├── src/
+│   ├── js/                 # JavaScript modules
+│   │   ├── main.js         # Entry point
+│   │   ├── userInputManager.js   # Manages user input cards
+│   │   ├── routineManager.js     # Handles routine generation
+│   │   ├── themeSwitcher.js      # Theme functionality
+│   │   └── uiManager.js    # UI interactions and effects
+│   ├── css/
+│   │   └── styles.css      # Main stylesheet
+│   └── assets/             # Images and static assets
+├── favicon.ico             # Website favicon
+├── LICENSE                 # MIT License
+├── README.md               # This file
+└── CONTRIBUTING.md         # Contribution guidelines
+```
+
+## Development
+
+### Prerequisites
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Basic understanding of HTML, CSS, and JavaScript
+
+### Local Development
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/itzMRZ/HomiesUnlocked.git
+   ```
+2. Open `index.html` in your browser or use a local development server.
 
 ## Contributing
-We welcome contributions to this project. If you would like to contribute, please follow these steps:
+We welcome contributions to HomiesUnlocked! Please read our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and suggest enhancements.
 
-1. Fork the repository.
-2. Create a new branch.
-3. Make your changes.
-4. Submit a pull request.
+## Technologies Used
+- HTML5
+- CSS3
+- JavaScript (ES6+)
+- TailwindCSS (via CDN)
+- HTML2Canvas (for screenshots)
+- Bootstrap Icons (via CDN)
+- Local Storage API
+
+## Acknowledgements
+This project was made possible thanks to:
+- [Tashfeen Vaia (Eniamza)](https://github.com/Eniamza) - For invaluable support and resources
+- [Moon](https://github.com/mahathirmoon) - For additional support
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ## Contact
 For any questions or inquiries, please contact the repository owner [itzMRZ](https://github.com/itzMRZ).
-
-Facebook <a href="https://www.facebook.com/ItzMRZxyz"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" style="width: 1em; height: 1em; vertical-align: middle;" alt="Facebook Icon"></a>
