@@ -23,4 +23,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 For any questions or inquiries, please contact the repository owner [itzMRZ](https://github.com/itzMRZ).
 
-Facebook <a href="https://www.facebook.com/ItzMRZxyz"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" width="30" height="30"></a>
+Facebook <a href="https://www.facebook.com/ItzMRZxyz"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" style="width: 1em; height: 1em; vertical-align: middle;" alt="Facebook Icon"></a>
