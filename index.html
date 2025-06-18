@@ -117,8 +117,8 @@
       <h2 class="text-2xl font-bold text-center mb-3" style="color: var(--text-color);">
         Combined Routine
       </h2>
-      <div class="overflow-x-auto">
-        <table class="w-full table-auto border-collapse mx-auto" style="color: var(--text-color);">
+      <div class="table-container">
+        <table class="w-full table-fixed border-collapse mx-auto" style="color: var(--text-color);">
           <thead>
             <tr>
               <th class="p-2 text-center" style="border: 1px solid var(--table-border);">Time</th>
@@ -178,6 +178,7 @@
         <span id="modal-close" class="modal-close">&times;</span>
       </div>
       <div class="modal-body mt-3 text-sm space-y-3">
+        <h3 class="font-semibold text-base">Method 1: Traditional JSON Routine</h3>
         <ol class="list-decimal pl-5 space-y-2">
           <li>Click on the <a href="https://routine-id.itzmrz.xyz/" class="inline-flex items-center bg-purple-600 text-white rounded-full px-3 py-1 hover:bg-purple-500 transition shadow text-sm" target="_blank" rel="noopener noreferrer">+ Get Routine ID</a>.</li>
           <li>Create your routine as you normally do on PrePreReg.</li>
@@ -185,7 +186,15 @@
           <li>Input name and routine ID here on the site.</li>
           <li>Finally, enter your friends' (max 16) nicknames and routine IDs on this site and click Generate Routine.</li>
         </ol>
-        <div class="border-t border-gray-500 pt-2">
+
+        <div class="border-t border-gray-500 pt-3">
+          <h3 class="font-semibold text-base">Method 2: Online Section IDs</h3>
+          <p class="mb-2">You can also use online section IDs by prefixing them with <code class="bg-gray-700 text-white px-1 rounded">#</code></p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Format: <code class="bg-gray-700 text-white px-1 rounded">#177609-178000-179500</code></li>
+            <li>Separate multiple section IDs with hyphens (-)</li>
+            <li>This will automatically fetch course data online</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -213,6 +222,8 @@
   <script src="src/js/uiManager.js"></script>
   <script src="src/js/themeSwitcher.js"></script>
   <script src="src/js/userInputManager.js"></script>
+  <script src="src/js/decompressor.js"></script>
+  <script src="src/js/canvasScreenshot.js"></script>
   <script src="src/js/routineManager.js"></script>
   <script src="src/js/main.js"></script>
 </body>

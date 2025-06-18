@@ -10,17 +10,23 @@ const UIManager = (() => {
   /**
    * Show a custom alert to the user
    * @param {string} message - The message to display
+   * @param {string} type - Alert type ('error', 'success', 'info')
    */
-  function showAlert(message) {
+  function showAlert(message, type = 'error') {
     // Remove any existing alert
     const existingAlert = document.querySelector('.custom-alert');
     if (existingAlert) {
       existingAlert.remove();
     }
 
+    // Determine alert color based on type
+    let bgColor = 'bg-red-500'; // default error
+    if (type === 'success') bgColor = 'bg-green-500';
+    if (type === 'info') bgColor = 'bg-blue-500';
+
     // Create new alert element
     const alertDiv = document.createElement('div');
-    alertDiv.className = 'custom-alert fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+    alertDiv.className = `custom-alert fixed top-4 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
     alertDiv.textContent = message;
     document.body.appendChild(alertDiv);
 
@@ -29,13 +35,13 @@ const UIManager = (() => {
       alertDiv.style.opacity = '1';
     }, 10);
 
-    // Fade out and remove after 3 seconds
+    // Fade out and remove after 4 seconds (longer for better readability)
     setTimeout(() => {
       alertDiv.style.opacity = '0';
       setTimeout(() => {
         alertDiv.remove();
       }, 500);
-    }, 3000);
+    }, 4000);
   }
 
   /**
@@ -91,15 +97,15 @@ const UIManager = (() => {
     }
 
     // Update mobile notice if needed
-    if (UserInputManager && UserInputManager.isMobileDevice()) {
+    if (typeof UserInputManager !== 'undefined' && UserInputManager.isMobileDevice()) {
       const noteElement = document.getElementById('screenshot-note');
       if (noteElement) {
-        noteElement.innerText = 'Please note: Using PC is recommended';
+        noteElement.innerText = 'Note: Canvas screenshot available! Try the Capture Routine button.';
       }
 
       const yellowNotice = document.getElementById('screenshot-notice');
       if (yellowNotice) {
-        yellowNotice.innerText = 'Please note: Using PC is recommended';
+        yellowNotice.innerHTML = '<span class="font-semibold">Good News:</span> Canvas screenshot is now available! Try the <strong>Capture Routine</strong> button after generating your routine.';
       }
     }
   }
