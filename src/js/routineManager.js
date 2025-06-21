@@ -251,38 +251,7 @@ const RoutineManager = (() => {  // Constants
         textColor: '#330033',
         borderColor: '#ff69b4'
       }
-    };
-
-    return themeConfigs[currentTheme] || themeConfigs.dark;
-  }
-  function needsRoutineRegeneration() {
-    const userCards = document.querySelectorAll('#user-inputs > div');
-    const cachedRoutine = localStorage.getItem('cachedRoutine');
-    const currentTableBody = document.getElementById('routine-table-body');
-
-    // If no table exists, we need generation
-    if (!currentTableBody || currentTableBody.children.length === 0) {
-      return true;
-    }
-
-    // Check if there are new user inputs since last generation
-    let hasValidInputs = false;
-    userCards.forEach(card => {
-      const inputs = card.querySelectorAll('input.input-field');
-      const nameInput = inputs[0];
-      const jsonInput = inputs[1];
-
-      if (nameInput.value.trim() && jsonInput.value.trim()) {
-        hasValidInputs = true;
-      }
-    });
-
-    // If no valid inputs, no need to regenerate
-    if (!hasValidInputs) {
-      return false;
-    }
-      // Check if cached routine matches current table
-    return cachedRoutine !== currentTableBody.innerHTML;
+    };    return themeConfigs[currentTheme] || themeConfigs.dark;
   }
 
   /**
@@ -290,15 +259,6 @@ const RoutineManager = (() => {  // Constants
    */
   async function captureScreenshot() {
     try {
-      // Check if routine needs regeneration first
-      if (needsRoutineRegeneration()) {
-        console.log('🔄 DEBUG: Routine needs regeneration, generating first...');
-        UIManager.showAlert('Generating latest routine...', 'info');
-        await generateRoutine();
-        // Small delay to let the UI update
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-
       // Check if there's a generated routine
       const routineTableBody = document.getElementById('routine-table-body');
       if (!routineTableBody || routineTableBody.children.length === 0) {
@@ -311,7 +271,7 @@ const RoutineManager = (() => {  // Constants
         console.error('❌ DEBUG: CanvasScreenshotCapture not loaded');
         UIManager.showAlert('Screenshot module not loaded. Please refresh the page.');
         return;
-      }      console.log('🎯 DEBUG: Starting screenshot capture...');
+      }console.log('🎯 DEBUG: Starting screenshot capture...');
 
       // Get current theme configuration
       const themeConfig = getCurrentThemeConfig();
@@ -379,25 +339,29 @@ const RoutineManager = (() => {  // Constants
           generateBtn.disabled = false;
         }
       });
-    }    // Screenshot button - fixed event handling
+    }    // Screenshot button - enhanced with routine regeneration
     const screenshotBtn = document.getElementById('screenshot-btn');
     if (screenshotBtn) {
       screenshotBtn.addEventListener('click', async () => {
-        const routineTableBody = document.getElementById('routine-table-body');
-        if (!routineTableBody || routineTableBody.children.length === 0) {
-          UIManager.showAlert("Please click 'Generate Routine' first.");
-          return;
-        }
-
         // Disable button and show spinner
         screenshotBtn.disabled = true;
         const screenshotSpinner = document.getElementById('screenshot-spinner');
         if (screenshotSpinner) screenshotSpinner.classList.remove('hidden');
 
         try {
+          // Always regenerate routine first to ensure latest data
+          console.log('🔄 DEBUG: Regenerating routine before screenshot...');
+          UIManager.showAlert('Generating latest routine...', 'info');
+          await generateRoutine();
+
+          // Small delay to let the UI update
+          await new Promise(resolve => setTimeout(resolve, 300));
+
+          // Then capture screenshot
           await captureScreenshot();
         } catch (error) {
           console.error('❌ DEBUG: Screenshot button error:', error);
+          UIManager.showAlert('Screenshot failed: ' + error.message, 'error');
         } finally {
           // Re-enable button and hide spinner after delay
           setTimeout(() => {

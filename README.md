@@ -24,7 +24,7 @@ Visit the [live application](https://homies-unlocked.itzmrz.xyz) to try it out.
    - Copy your routine ID when finished
 2. On HomiesUnlocked:
    - Enter each person's name and their routine ID
-   - Add more users with the "+ Add More Users" button
+   - Add more users with the "+ Add 1 More" button (mobile) or "+ Add 2 More Users" button (desktop)
    - Click "Generate Routine" to create the combined schedule
    - Use the "Capture Routine" button to save a screenshot of the schedule
 

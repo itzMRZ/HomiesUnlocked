@@ -29,7 +29,7 @@ class CanvasScreenshotCapture {
         const maxUsersInTable = this.getMaxUsersInTable(tableData);
 
         // Calculate dynamic row heights based on content
-        const dynamicRowHeights = this.calculateDynamicRowHeights(tableData);        // Table configuration with corrected font scaling that makes sense
+        const dynamicRowHeights = this.calculateDynamicRowHeights(tableData);        // Table configuration with improved aesthetics for text height
         const config = {
             padding: 12,
             baseCellHeight: 50,
@@ -39,9 +39,9 @@ class CanvasScreenshotCapture {
             headerFontSize: this.calculateDynamicFontSize(maxUsersInTable, 16), // Slightly larger for headers
             entryFontSize: this.calculateDynamicFontSize(maxUsersInTable, 12), // Smaller for routine entries
             fontFamily: 'Inter, Arial, sans-serif',
-            minEntryHeight: Math.max(18, 14 + (maxUsersInTable * 0.3)), // Modest scaling
-            maxEntryHeight: Math.max(32, 24 + (maxUsersInTable * 0.8)), // Controlled scaling
-            entryPadding: Math.max(2, 1 + (maxUsersInTable * 0.05))     // Minimal padding scaling
+            minEntryHeight: Math.max(24, 18 + (maxUsersInTable * 0.5)), // Better minimum height for readability
+            maxEntryHeight: Math.max(42, 32 + (maxUsersInTable * 1.2)), // Better maximum height for aesthetics
+            entryPadding: Math.max(3, 2 + (maxUsersInTable * 0.08))     // Slightly more padding for better spacing
         };// Calculate column widths based on content - pass dynamicRowHeights
         const columnWidths = this.calculateOptimalColumnWidths(tableData, config, dynamicRowHeights);
 
@@ -251,52 +251,56 @@ class CanvasScreenshotCapture {
             const cellY = startY;
             const cellWidth = columnWidths[dayIndex + 1];
             const cellHeight = rowHeight;            if (dayData.entries.length > 0) {
-                // Calculate dynamic entry dimensions
-                const availableHeight = cellHeight - (config.entryPadding * 2);
-                const entryHeight = Math.max(
-                    config.minEntryHeight,
-                    Math.min(
-                        config.maxEntryHeight,
-                        (availableHeight - (config.entryPadding * (dayData.entries.length - 1))) / dayData.entries.length
-                    )
-                );
-                const entryWidth = cellWidth - 8;                // Use the pre-calculated dynamic font size from config
+                // CONSISTENT FIXED ENTRY HEIGHT - No stretching based on available space
+                const entrySpacing = 4; // Fixed spacing between entries
+
+                // Completely fixed entry height based only on font size, regardless of cell space
+                const entryHeight = Math.max(20, config.entryFontSize + 8); // Minimum 20px, or font + padding
+                const entryWidth = cellWidth - 8;
+
+                // Calculate total height needed for all entries
+                const totalEntriesHeight = (entryHeight * dayData.entries.length) +
+                                         (entrySpacing * Math.max(0, dayData.entries.length - 1));
+                  // Center the entries vertically within the cell
+                const entriesStartY = cellY + ((cellHeight - totalEntriesHeight) / 2);
+
+                // Use the pre-calculated dynamic font size from config
                 // This ensures consistent scaling based on total user count
                 const fontSize = config.entryFontSize;
 
                 dayData.entries.forEach((entry, entryIndex) => {
                     const entryX = cellX + 4;
-                    const entryY = cellY + config.entryPadding + (entryIndex * (entryHeight + config.entryPadding));
-
-                    // Draw entry background with rounded corners effect
+                    const entryY = entriesStartY + (entryIndex * (entryHeight + entrySpacing));                    // Draw entry background with slightly rounded corners
                     this.ctx.fillStyle = this.parseColor(entry.backgroundColor);
-                    this.ctx.fillRect(entryX, entryY, entryWidth, entryHeight);                    // Draw entry text with dynamic font size
+                    this.drawRoundedRect(entryX, entryY, entryWidth, entryHeight, 3); // 3px border radius for subtle effect
+
+                    // Draw entry text with dynamic font size and better vertical centering
                     this.ctx.fillStyle = this.parseColor(entry.color);
-                    this.ctx.font = `${fontSize}px ${config.fontFamily}`;                    // ABSOLUTE NO-WRAP LOGIC: Measure actual text width and truncate precisely
+                    this.ctx.font = `${fontSize}px ${config.fontFamily}`;// ABSOLUTE NO-WRAP LOGIC: Measure actual text width and truncate precisely
                     let displayText = entry.text;
-                    
+
                     // Calculate available width with minimal padding
                     const horizontalPadding = Math.max(2, fontSize * 0.15); // Very conservative padding
                     const maxTextWidth = entryWidth - (horizontalPadding * 2);
-                    
+
                     // Set font before measuring
                     this.ctx.font = `${fontSize}px ${config.fontFamily}`;
-                    
+
                     // Measure actual text width and truncate if needed
                     let textWidth = this.ctx.measureText(displayText).width;
-                    
+
                     // If text is too wide, truncate with ellipsis
                     if (textWidth > maxTextWidth && maxTextWidth > 10) {
                         // Binary search for optimal truncation point
                         let left = 0;
                         let right = displayText.length;
                         let bestFit = '';
-                        
+
                         while (left <= right) {
                             const mid = Math.floor((left + right) / 2);
                             const testText = displayText.substring(0, mid) + '...';
                             const testWidth = this.ctx.measureText(testText).width;
-                            
+
                             if (testWidth <= maxTextWidth) {
                                 bestFit = testText;
                                 left = mid + 1;
@@ -304,7 +308,7 @@ class CanvasScreenshotCapture {
                                 right = mid - 1;
                             }
                         }
-                        
+
                         displayText = bestFit || '...';
                     } else if (maxTextWidth <= 10) {
                         displayText = '...';
@@ -313,10 +317,10 @@ class CanvasScreenshotCapture {
                     // Set text alignment and draw (SINGLE LINE ONLY)
                     this.ctx.textAlign = 'center';
                     this.ctx.textBaseline = 'middle';
-                    
+
                     const textX = entryX + (entryWidth / 2);
                     const textY = entryY + (entryHeight / 2);
-                    
+
                     // Draw text (guaranteed to fit)
                     this.ctx.fillText(displayText, textX, textY);
                 });
@@ -445,6 +449,27 @@ class CanvasScreenshotCapture {
 
         console.log(`🔤 DEBUG: Corrected Font scaling - Users: ${userCount}, Base: ${baseFontSize}px → Scale: ${scaleFactor}x → Final: ${scaledFontSize}px`);
         return scaledFontSize;
+    }    /**
+     * Draw a rounded rectangle on the canvas
+     * @param {number} x - X position
+     * @param {number} y - Y position
+     * @param {number} width - Width of rectangle
+     * @param {number} height - Height of rectangle
+     * @param {number} radius - Border radius
+     */
+    drawRoundedRect(x, y, width, height, radius) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + radius, y);
+        this.ctx.lineTo(x + width - radius, y);
+        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.ctx.lineTo(x + width, y + height - radius);
+        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.ctx.lineTo(x + radius, y + height);
+        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.ctx.quadraticCurveTo(x, y, x + radius, y);
+        this.ctx.closePath();
+        this.ctx.fill();
     }
 }
 

@@ -5,6 +5,7 @@
  * - Shows and hides alerts
  * - Manages modals
  * - Handles acknowledgements section
+ * - Detects Facebook/Messenger browser and shows warning modal
  */
 const UIManager = (() => {
   /**
@@ -57,6 +58,110 @@ const UIManager = (() => {
   }
 
   /**
+   * Detect if user is using Facebook or Messenger in-app browser
+   * @returns {boolean} True if Facebook/Messenger browser is detected
+   */
+  function isFacebookBrowser() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // Check for Facebook in-app browser indicators
+    const facebookIndicators = [
+      'FBAN', 'FBAV', 'FBSV', 'FBDV', 'FBMD', 'FBSN', 'FBBK', 'FBCA',
+      'MessengerForiOS', 'MessengerLite', 'MessengerBrowser',
+      'Instagram', 'WhatsApp'
+    ];
+
+    return facebookIndicators.some(indicator => userAgent.includes(indicator));
+  }
+
+  /**
+   * Initialize Facebook browser modal functionality
+   */
+  function initFacebookBrowserModal() {
+    if (!isFacebookBrowser()) return;
+
+    const modal = document.getElementById('facebook-browser-modal');
+    const closeBtn = document.getElementById('facebook-modal-close');
+    const copyBtn = document.getElementById('copy-link-btn');
+    const continueBtn = document.getElementById('continue-anyway');
+    const copyAndDismissBtn = document.getElementById('copy-and-dismiss');
+    const linkText = document.getElementById('copy-link');
+
+    if (!modal) return;
+
+    // Show modal immediately
+    modal.style.display = 'flex';
+
+    // Copy link functionality
+    function copyLink() {
+      const link = 'https://homies-unlocked.itzmrz.xyz/';
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(link).then(() => {
+          showAlert('Link copied to clipboard!', 'success');
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy';
+          }, 2000);
+        }).catch(() => {
+          // Fallback for older browsers
+          fallbackCopyText(link);
+        });
+      } else {
+        fallbackCopyText(link);
+      }
+    }
+
+    // Fallback copy method
+    function fallbackCopyText(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        document.execCommand('copy');
+        showAlert('Link copied to clipboard!', 'success');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+        }, 2000);
+      } catch (err) {
+        showAlert('Please manually copy the link above', 'info');
+      }
+
+      document.body.removeChild(textArea);
+    }
+
+    // Close modal
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+
+    // Event listeners
+    closeBtn?.addEventListener('click', closeModal);
+    copyBtn?.addEventListener('click', copyLink);
+    continueBtn?.addEventListener('click', closeModal);
+    copyAndDismissBtn?.addEventListener('click', () => {
+      copyLink();
+      setTimeout(closeModal, 500); // Small delay to show copy feedback
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Also allow clicking on the link text to copy
+    linkText?.addEventListener('click', copyLink);
+  }
+
+  /**
    * Initialize UI components and event listeners
    */
   function init() {
@@ -94,26 +199,27 @@ const UIManager = (() => {
           howToModal.style.display = 'none';
         }
       });
-    }
-
-    // Update mobile notice if needed
+    }    // Update mobile notice if needed
     if (typeof UserInputManager !== 'undefined' && UserInputManager.isMobileDevice()) {
       const noteElement = document.getElementById('screenshot-note');
       if (noteElement) {
-        noteElement.innerText = 'Note: Canvas screenshot available! Try the Capture Routine button.';
+        noteElement.innerText = 'Generate a combined routine with up to 10 people ^_~ Desktop mode is not recommended on phones.';
       }
 
       const yellowNotice = document.getElementById('screenshot-notice');
       if (yellowNotice) {
-        yellowNotice.innerHTML = '<span class="font-semibold">Good News:</span> Canvas screenshot is now available! Try the <strong>Capture Routine</strong> button after generating your routine.';
+        yellowNotice.innerHTML = 'Generate a combined routine with up to 10 people ^_~';
       }
     }
-  }
 
+    initFacebookBrowserModal();
+  }
   // Public API
   return {
     init,
     showAlert,
-    toggleAcknowledgements
+    toggleAcknowledgements,
+    isFacebookBrowser,
+    initFacebookBrowserModal
   };
 })();

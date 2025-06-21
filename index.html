@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+<head>  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomiesUnlocked</title>
+
+  <!-- Open Graph / Social Media Meta Tags -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="HomiesUnlocked - Generate Combined Routines" />
+  <meta property="og:description" content="Generate a combined routine with up to 10 people ^_~ Create and share class schedules with your homies!" />
+  <meta property="og:image" content="https://homies-unlocked.itzmrz.xyz/opengraph.jpg" />
+  <meta property="og:url" content="https://homies-unlocked.itzmrz.xyz/" />
+  <meta property="og:site_name" content="HomiesUnlocked" />
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HomiesUnlocked - Generate Combined Routines" />
+  <meta name="twitter:description" content="Generate a combined routine with up to 10 people ^_~ Create and share class schedules with your homies!" />
+  <meta name="twitter:image" content="https://homies-unlocked.itzmrz.xyz/opengraph.jpg" />
+
+  <!-- Additional Meta Tags -->
+  <meta name="description" content="Generate a combined routine with up to 10 people ^_~ Create and share class schedules with your homies!" />
+  <meta name="keywords" content="routine, schedule, class, university, combine, friends, homies" />
   <!-- External libraries -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -14,6 +31,15 @@
 
   <!-- Custom styles -->
   <link rel="stylesheet" href="src/css/styles.css">
+
+  <!-- Microsoft Clarity Analytics -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "s2qdoowjxs");
+  </script>
 </head>
 <body data-theme="dark" class="min-h-screen">
   <!-- Header -->
@@ -22,12 +48,9 @@
       <span class="bracket">&lt;/</span>Homies<span class="unlocked">Unlocked</span><span class="bracket">&gt;</span>
     </h1>
     <p id="tagline" class="mt-2">More than a routine....</p>
-  </header>
-
-  <!-- Yellow Notice (with id for mobile update) -->
+  </header>  <!-- Yellow Notice (with id for mobile update) -->
   <div id="screenshot-notice" class="notice relative">
-    <span class="font-semibold">Please Note:</span> The screenshot button might not work as expected.
-    It is recommended to use a PC and press <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> to capture a screenshot.
+    Generate a combined routine with up to 10 people ^_~
   </div>
 
   <!-- Get Routine ID & How to Use Buttons -->
@@ -53,7 +76,7 @@
     <div class="card input-card rounded-lg shadow-md mb-6">
       <div id="user-inputs"></div>
       <div class="flex justify-center mt-3">        <button id="add-user-btn" class="btn-hover rounded-full px-4 py-2 transition shadow" style="background-color: var(--button-bg); color: var(--text-color);">
-          <span class="btn-text-mobile">+ Add 2 More</span>
+          <span class="btn-text-mobile">+ Add 1 More</span>
           <span class="btn-text-desktop">+ Add 2 More Users</span>
         </button>
       </div>
@@ -76,7 +99,7 @@
                   1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83-2.83l.06.06a1.65
                   1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0
                   001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65
-                  1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0
+                  1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0
                   001 1.51h.09a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06
                   a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0
                   00-1.51 1z" />
@@ -170,6 +193,49 @@
     </a>
   </footer>
 
+  <!-- Facebook/Messenger Browser Warning Modal -->
+  <div id="facebook-browser-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 relative">
+      <button id="facebook-modal-close" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold">&times;</button>
+      
+      <div class="text-center">
+        <div class="mb-4">
+          <svg class="mx-auto w-16 h-16 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 3.463-2.001 4.568-1.105 1.104-2.707 1.832-4.567 2-.925.084-1.867.084-2.792 0-1.86-.168-3.462-.896-4.567-2C2.536 11.623 1.808 10.018 1.64 8.16c-.084-.925-.084-1.867 0-2.792C1.808 3.51 2.536 1.905 3.641.8 4.746-.305 6.348-1.032 8.208-1.2c.925-.084 1.867-.084 2.792 0 1.86.168 3.462.895 4.567 2 1.105 1.105 1.832 2.71 2.001 4.568.084.925.084 1.867 0 2.792z"/>
+          </svg>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+          Better Experience Available!
+        </h3>
+        
+        <p class="text-gray-600 dark:text-gray-300 mb-4">
+          For the best experience, please copy this link and open it in your default browser (Chrome, Safari, etc.):
+        </p>
+        
+        <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-md mb-4">
+          <div class="flex items-center justify-between">
+            <span id="copy-link" class="text-sm text-gray-800 dark:text-gray-200 font-mono break-all">
+              https://homies-unlocked.itzmrz.xyz/
+            </span>
+            <button id="copy-link-btn" class="ml-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors flex-shrink-0">
+              Copy
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex gap-2 justify-center">
+          <button id="copy-and-dismiss" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+            Copy & Dismiss
+          </button>
+          <button id="continue-anyway" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
+            Continue Here
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- How to Use Modal -->
   <div id="how-to-modal" class="modal-overlay">
     <div class="modal">
@@ -184,23 +250,13 @@
           <li>Create your routine as you normally do on PrePreReg.</li>
           <li>Once finished, copy your routine ID and have your friends do the same.</li>
           <li>Input name and routine ID here on the site.</li>
-          <li>Finally, enter your friends' (max 16) nicknames and routine IDs on this site and click Generate Routine.</li>
-        </ol>        <div class="border-t border-gray-500 pt-3">
-          <h3 class="font-semibold text-base">Method 2: Online Section IDs (Base69 Encrypted)</h3>
-          <p class="mb-2">You can also use encrypted section IDs by prefixing them with <code class="bg-gray-700 text-white px-1 rounded">#</code></p>
-          <ul class="list-disc pl-5 space-y-1">
-            <li>Format: <code class="bg-gray-700 text-white px-1 rounded">#abc123def456</code></li>
-            <li>Each 3-character group represents one section ID</li>
-            <li>This will automatically decrypt and fetch course data online</li>
-          </ul>
-        </div>
+          <li>Finally, enter your friends' (max 16) nicknames and routine IDs on this site and click Generate Routine.</li>        </ol>
       </div>
     </div>
   </div>
-
   <!-- Note at the bottom (will be updated on mobile) -->
   <div id="screenshot-note">
-    NOTE : Desktop mode is not recommended on phones.
+    Generate a combined routine with up to 10 people ^_~ Desktop mode is not recommended on phones.
   </div>
   <div class="fixed bottom-0 right-0 m-4">
     <a href="https://github.com/itzMRZ/HomiesUnlocked" class="text-2xl font-bold text-white">
