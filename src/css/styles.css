@@ -29,6 +29,19 @@ html, body {
 @media (max-width: 640px) {
   .input-row {
     flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .name-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+    align-items: stretch;
+  }
+
+  .routine-row {
+    display: flex;
+    width: 100%;
   }
 }
 
@@ -254,19 +267,116 @@ header {
   margin-bottom: 0.5rem;
 }
 
-.input-field {
-  line-height: 1.5;
-  height: 2.5rem;
+/* User inputs container - Grid layout for desktop */
+#user-inputs {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr; /* Single column on mobile by default */
+}
+
+/* Desktop: 2-column grid */
+@media (min-width: 769px) {
+  #user-inputs {
+    grid-template-columns: 1fr 1fr; /* 2 columns on desktop */
+    gap: 1.5rem;
+  }
+}
+
+/* Large desktop: Keep 2-column but with better spacing */
+@media (min-width: 1200px) {
+  #user-inputs {
+    gap: 2rem;
+  }
+}
+
+/* Individual user input card styling */
+#user-inputs > .input-card {
+  margin-bottom: 0; /* Remove margin since we're using grid gap */
+  width: 100%; /* Ensure cards fill their grid cells */
 }
 
 /* Flex container for side-by-side inputs */
 .input-row {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  align-items: stretch;
+  position: relative;
+}
+
+/* Name row (contains name input) */
+.name-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  flex: 1;
+}
+
+/* Routine row (contains routine input) */
+.routine-row {
+  display: flex;
+  flex: 1;
+}
+
+/* Trash button container - responsive positioning */
+.trash-btn-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+/* Mobile: Position trash button on name row */
+@media (max-width: 768px) {
+  .input-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .trash-btn-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 2.5rem;
+  }
+
+  .name-row {
+    padding-right: 3rem; /* Make space for trash button */
+  }
+}
+
+/* Desktop: Position trash button on routine row */
+@media (min-width: 769px) {
+  .input-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .trash-btn-container {
+    position: absolute;
+    right: 0;
+    top: 3rem; /* Position at routine row level */
+    height: 2.5rem;
+  }
+
+  .routine-row {
+    padding-right: 3rem; /* Make space for trash button */
+  }
+}
+
+/* Input container for positioning */
+.input-container {
+  position: relative;
+  flex: 1;
 }
 
 .input-field {
   flex: 1;
+  width: 100%;
+  line-height: 1.5;
+  height: 2.5rem;
   background-color: var(--input-card-bg);
   color: var(--input-card-text);
   border: 1px solid var(--input-border);
@@ -291,21 +401,69 @@ textarea.input-field {
   resize: vertical;
 }
 
-/* Routine entry styling */
+/* Trash button styling */
+.trash-btn {
+  background: none !important;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  transition: transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.trash-btn:hover {
+  transform: scale(1.1);
+}
+
+.trash-btn:active {
+  transform: scale(0.9);
+}
+
+.trash-btn i {
+  font-size: 1rem;
+}
+
+/* Mobile adjustments for trash button */
+@media (max-width: 768px) {
+  .trash-btn {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .trash-btn i {
+    font-size: 0.875rem;
+  }
+}
+
+/* Routine entry styling - consolidated */
 .routine-entry {
-  padding-top: var(--routine-entry-padding-top);
-  padding-right: var(--routine-entry-padding-right);
-  padding-bottom: var(--routine-entry-padding-bottom);
-  padding-left: var(--routine-entry-padding-left);
-  font-size: var(--routine-entry-font-size);
-  line-height: var(--routine-entry-line-height);
-  min-height: var(--routine-entry-min-height);
-  text-align: center;
+  /* Base styling using CSS custom properties with fallbacks */
+  padding-top: var(--routine-entry-padding-top, 0.25rem);
+  padding-right: var(--routine-entry-padding-right, 0.25rem);
+  padding-bottom: var(--routine-entry-padding-bottom, 0.25rem);
+  padding-left: var(--routine-entry-padding-left, 0.25rem);
+  font-size: var(--routine-entry-font-size, 0.7rem);
+  line-height: var(--routine-entry-line-height, 1.2);
+  min-height: var(--routine-entry-min-height, auto);
+
+  /* Additional properties */
+  margin-bottom: 0.2rem;
   border-radius: 0.25rem;
-  margin-bottom: 0.25rem;
+  text-align: center;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
+  min-width: max-content;
 }
 
 /* Routine Card styling */
@@ -484,7 +642,6 @@ footer {
 .table-container {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Base table styling - PREVENT ALL WRAPPING */
@@ -514,30 +671,11 @@ footer {
 #combined-routine td:first-child {
   min-width: max-content;
   font-size: 0.8rem;
-  white-space: nowrap;
 }
 
 /* Day columns - let them size naturally */
 #combined-routine th:not(:first-child),
 #combined-routine td:not(:first-child) {
-  min-width: max-content;
-  white-space: nowrap;
-}
-
-/* Routine entry - ABSOLUTELY NO WRAPPING */
-.routine-entry {
-  padding: 0.25rem;
-  font-size: 0.7rem;
-  line-height: 1.2;
-  margin-bottom: 0.2rem;
-  border-radius: 0.25rem;
-  text-align: center;
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  white-space: nowrap;
-  overflow: visible;
-  text-overflow: clip;
   min-width: max-content;
 }
 
@@ -547,25 +685,25 @@ footer {
     padding: 0.5rem;
     margin: 0.5rem;
   }
-  
+
   #combined-routine th,
   #combined-routine td {
     padding: 0.25rem;
     font-size: 0.75rem;
   }
-  
+
   #combined-routine th:first-child,
   #combined-routine td:first-child {
     width: 15%;
     min-width: 60px;
     font-size: 0.7rem;
   }
-  
+
   #combined-routine th:not(:first-child),
   #combined-routine td:not(:first-child) {
     width: 12.14%; /* (100% - 15%) / 7 days */
   }
-  
+
   .routine-entry {
     font-size: 0.6rem;
     padding: 0.2rem;
@@ -581,23 +719,42 @@ footer {
     padding: 0.15rem;
     font-size: 0.7rem;
   }
-  
+
   #combined-routine th:first-child,
   #combined-routine td:first-child {
     width: 18%;
     min-width: 50px;
     font-size: 0.65rem;
   }
-  
+
   #combined-routine th:not(:first-child),
   #combined-routine td:not(:first-child) {
     width: 11.71%; /* (100% - 18%) / 7 days */
   }
-  
+
   .routine-entry {
     font-size: 0.55rem;
     padding: 0.15rem;
     line-height: 1;
     margin-bottom: 0.1rem;
+  }
+}
+
+/* Add user button responsive text */
+#add-user-btn .btn-text-desktop {
+  display: none;
+}
+
+#add-user-btn .btn-text-mobile {
+  display: inline;
+}
+
+@media (min-width: 769px) {
+  #add-user-btn .btn-text-desktop {
+    display: inline;
+  }
+
+  #add-user-btn .btn-text-mobile {
+    display: none;
   }
 }

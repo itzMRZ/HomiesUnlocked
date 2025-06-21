@@ -7,245 +7,41 @@
  * - Capturing screenshots of routines
  * - Fetching online routine data for IDs starting with '#'
  */
-const RoutineManager = (() => {
-  // Constants
+const RoutineManager = (() => {  // Constants
   const timeSlots = [
-    '8:00 AM-9:20 AM', '9:30 AM-10:50 AM',
-    '11:00 AM-12:20 PM', '12:30 PM-1:50 PM',
-    '2:00 PM-3:20 PM', '3:30 PM-4:50 PM',
-    '5:00 PM-6:20 PM'
-  ];
-
-  // API endpoint for online routine data
-  const ONLINE_API_URL = 'https://usis-cdn.eniamza.com/connect.json';
-
-  /**
-   * Convert time from 24-hour format to 12-hour format with AM/PM
-   * @param {string} time24 - Time in 24-hour format (e.g., "14:00:00")
-   * @returns {string} Time in 12-hour format (e.g., "2:00 PM")
-   */
-  function convertTo12Hour(time24) {
-    const [hours, minutes] = time24.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
-  }
-
-  /**
-   * Convert day name from API format to display format
-   * @param {string} apiDay - Day in API format (e.g., "WEDNESDAY")
-   * @returns {string} Day in display format (e.g., "WED")
-   */
-  function convertDayFormat(apiDay) {
-    const dayMap = {
-      'SUNDAY': 'SUN',
-      'MONDAY': 'MON',
-      'TUESDAY': 'TUE',
-      'WEDNESDAY': 'WED',
-      'THURSDAY': 'THU',
-      'FRIDAY': 'FRI',
-      'SATURDAY': 'SAT'
-    };
-    return dayMap[apiDay] || apiDay;
-  }
-
-  /**
-   * Convert online API data to the existing routine format
-   * @param {Array} apiData - Array of course data from the API
-   * @returns {Array} Converted data in the existing format
-   */
-  function convertApiDataToRoutineFormat(apiData) {
-    console.log('🔄 DEBUG: Converting API data to routine format');
-    
-    return apiData.map(course => {
-      const schedules = course.sectionSchedule?.classSchedules || [];
-
-      // Convert class schedules to the expected format
-      const classScheduleStrings = schedules.map(schedule => {
-        const startTime = convertTo12Hour(schedule.startTime);
-        const endTime = convertTo12Hour(schedule.endTime);
-        const day = convertDayFormat(schedule.day);
-        const room = course.roomName || 'TBA';
-        return `${day} (${startTime}-${endTime}-${room})`;
-      });
-
-      // Handle lab schedules if they exist
-      let labScheduleStrings = [];
-      let labCourseCode = null;
-      
-      if (course.labSchedules && course.labSchedules.length > 0) {
-        console.log('🧪 DEBUG: Processing lab schedules for course:', course.courseCode);
-
-        // Generate lab course code by adding 'L' to the main course code
-        labCourseCode = `${course.courseCode}L`;
-        console.log('🧪 DEBUG: Generated lab course code:', labCourseCode);
-
-        labScheduleStrings = course.labSchedules.map(schedule => {
-          const startTime = convertTo12Hour(schedule.startTime);
-          const endTime = convertTo12Hour(schedule.endTime);
-          const day = convertDayFormat(schedule.day);
-          const room = course.labRoomName || 'TBA';
-          return `${day} (${startTime}-${endTime}-${room})`;
-        });
-
-        console.log('🧪 DEBUG: Lab schedule strings:', labScheduleStrings);
-      }
-
-      return {
-        Course: course.courseCode,
-        section: `Section ${course.sectionName}`,
-        faculty: course.faculties || 'TBA',
-        Class: classScheduleStrings.length > 0 ? classScheduleStrings.join(', ') : 'N/A',
-        Lab: labScheduleStrings.length > 0 ? labScheduleStrings.join(', ') : 'N/A',
-        // Store lab course code for later use
-        labCourseCode: labCourseCode,
-        hasLab: labScheduleStrings.length > 0
-      };
-    });
-  }
-
-  /**
-   * Fetch routine data from online API for routine IDs starting with #
-   * @param {string} routineId - Routine ID starting with # (using BASE69 format)
-   * @returns {Promise<Array>} Promise resolving to routine data
-   */
-  async function fetchOnlineRoutineData(routineId) {
-    console.log('🔍 DEBUG: Starting fetchOnlineRoutineData with routineId:', routineId);
-
-    try {
-      console.log('📡 DEBUG: Fetching USIS API data...');
-      const response = await fetch(ONLINE_API_URL);
-
-      console.log('📡 DEBUG: USIS API response status:', response.status);
-      console.log('📡 DEBUG: USIS API response ok:', response.ok);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const allSections = await response.json();
-      console.log('📊 DEBUG: Total sections fetched from USIS:', allSections.length);
-      console.log('📊 DEBUG: First section sample:', allSections[0]);
-
-      // Import and use BASE69 compressor
-      let targetSectionIds = [];
-
-      if (routineId.startsWith('#')) {
-        console.log('🔓 DEBUG: Processing routine ID with BASE69:', routineId);
-        try {
-          // Use the existing compressor from utils
-          const compressorModule = await import('../utils/compressor.js');
-          const { compressor } = compressorModule;
-          console.log('🔧 DEBUG: BASE69 Compressor loaded successfully');
-
-          targetSectionIds = compressor.decompressRoutine(routineId);
-          console.log('🔓 DEBUG: BASE69 Decompressed section IDs:', targetSectionIds);
-        } catch (error) {
-          console.error('❌ DEBUG: Error with BASE69 decompression:', error);
-          console.error('❌ DEBUG: Error stack:', error.stack);
-          throw new Error('Invalid routine format: ' + error.message);
-        }
-      } else {
-        console.log('📋 DEBUG: Using direct section ID:', routineId);
-        targetSectionIds = [routineId];
-      }
-
-      console.log('🎯 DEBUG: Looking for section IDs:', targetSectionIds);
-
-      // Filter sections that match our target section IDs
-      const matchingSections = allSections.filter(section => {
-        const sectionIdStr = section.sectionId.toString();
-        const isMatch = targetSectionIds.includes(sectionIdStr);
-
-        if (isMatch) {
-          console.log('✅ DEBUG: Found matching section:', sectionIdStr, section.courseCode);
-        }
-
-        return isMatch;
-      });
-
-      console.log('🎯 DEBUG: Total matching sections found:', matchingSections.length);
-
-      if (matchingSections.length === 0) {
-        console.error('❌ DEBUG: No matching sections found');
-        console.log('🔍 DEBUG: Available section IDs sample (first 10):');
-        allSections.slice(0, 10).forEach(section => {
-          console.log('  -', section.sectionId, section.courseCode);
-        });
-        throw new Error('No matching sections found in USIS data');
-      }
-
-      // Log lab information for debugging
-      matchingSections.forEach(section => {
-        if (section.labSchedules && section.labSchedules.length > 0) {
-          console.log('🧪 DEBUG: Section with lab found:', {
-            sectionId: section.sectionId,
-            courseCode: section.courseCode,
-            labSchedules: section.labSchedules,
-            labRoomName: section.labRoomName,
-            labCourseCode: section.labCourseCode
-          });
-        }
-      });
-
-      const convertedData = convertApiDataToRoutineFormat(matchingSections);
-      console.log('✅ DEBUG: Converted routine data:', convertedData);
-
-      return convertedData;
-
-    } catch (error) {
-      console.error('❌ DEBUG: Error in fetchOnlineRoutineData:', error);
-      console.error('❌ DEBUG: Error type:', error.constructor.name);
-      console.error('❌ DEBUG: Error message:', error.message);
-      console.error('❌ DEBUG: Error stack:', error.stack);
-      throw error;
-    }
-  }
-
-  /**
-   * Parse section IDs from routine ID string (using BASE69 format)
-   * @param {string} routineId - Routine ID starting with # (BASE69 compressed format)
-   * @returns {Promise<Array>} Promise resolving to array of section IDs
-   */
-  async function parseSectionIds(routineId) {
-    console.log('🔧 DEBUG: parseSectionIds called with:', routineId);
-    try {
-      // Use BASE69 compressor for decompression
-      const compressorModule = await import('../utils/compressor.js');
-      const { compressor } = compressorModule;
-      console.log('🔧 DEBUG: Compressor loaded in parseSectionIds');
-
-      const sectionIds = compressor.decompressRoutine(routineId);
-      console.log('✅ DEBUG: parseSectionIds returning:', sectionIds);
-      return sectionIds;
-    } catch (error) {
-      console.error('❌ DEBUG: Error in parseSectionIds:', error);
-      throw new Error('Invalid routine format: ' + error.message);
-    }
-  }
+    '8:00 AM<br>9:20 AM', '9:30 AM<br>10:50 AM',
+    '11:00 AM<br>12:20 PM', '12:30 PM<br>1:50 PM',
+    '2:00 PM<br>3:20 PM', '3:30 PM<br>4:50 PM',
+    '5:00 PM<br>6:20 PM'  ];
 
   /**
    * Process routine input (either JSON or online ID)
    * @param {string} input - Either JSON string or online ID starting with #
    * @returns {Promise<Array>} Promise resolving to routine data
-   */
-  async function processRoutineInput(input) {
-    console.log('🔍 DEBUG: processRoutineInput called with:', input);
+   */  async function processRoutineInput(input) {
     const trimmedInput = input.trim();
 
     if (trimmedInput.startsWith('#')) {
-      console.log('🌐 DEBUG: Processing online routine ID');
-      // Online mode - fetch from API
-      const sectionIds = await parseSectionIds(trimmedInput);
-      console.log('🔍 DEBUG: Got section IDs:', sectionIds);
+      // Encrypted mode - use new decryptor
+      console.log('🔍 DEBUG: RoutineDecryptor object:', window.RoutineDecryptor);
+      console.log('🔍 DEBUG: RoutineDecryptor type:', typeof window.RoutineDecryptor);
 
-      if (!sectionIds || sectionIds.length === 0) {
-        throw new Error('Invalid routine ID format. No section IDs found.');
+      if (!window.RoutineDecryptor) {
+        throw new Error('RoutineDecryptor not loaded');
       }
 
-      return await fetchOnlineRoutineData(trimmedInput);
+      if (typeof window.RoutineDecryptor.processEncryptedRoutine !== 'function') {
+        console.log('🔍 DEBUG: Available methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.RoutineDecryptor)));
+        throw new Error('processEncryptedRoutine method not found');
+      }
+
+      try {
+        return await window.RoutineDecryptor.processEncryptedRoutine(trimmedInput);
+      } catch (error) {
+        console.error('❌ DEBUG: Error processing encrypted routine:', error);
+        throw new Error('Invalid routine format: ' + error.message);
+      }
     } else {
-      console.log('📝 DEBUG: Processing JSON input');
       // JSON mode - parse directly
       return JSON.parse(trimmedInput);
     }
@@ -303,25 +99,13 @@ const RoutineManager = (() => {
     const rawTime = timePart.replace(')', '').replace(/([AP]M)/gi, ' $1').trim();
     const [startTime, endTime] = rawTime.split('-').map(t => t.trim());
     const sStart = timeToMinutes(startTime);
-    const sEnd = timeToMinutes(endTime);
-
-    timeSlots.forEach(slot => {
-      const [slotStartStr, slotEndStr] = slot.split('-');
+    const sEnd = timeToMinutes(endTime);    timeSlots.forEach(slot => {
+      const [slotStartStr, slotEndStr] = slot.replace('<br>', '-').split('-');
       const slotStart = timeToMinutes(slotStartStr.trim());
-      const slotEnd = timeToMinutes(slotEndStr.trim());
-
-      if (sStart <= slotEnd && sEnd >= slotStart) {
+      const slotEnd = timeToMinutes(slotEndStr.trim());      if (sStart <= slotEnd && sEnd >= slotStart) {
         // Determine if this is a lab session based on the course object
         const isLabSession = course.Lab && course.Lab !== 'N/A' && course.Lab.includes(session);
         const displayCourse = isLabSession && course.labCourseCode ? course.labCourseCode : course.Course;
-        
-        console.log('🔧 DEBUG: Processing session:', {
-          session,
-          isLabSession,
-          originalCourse: course.Course,
-          displayCourse,
-          labCourseCode: course.labCourseCode
-        });
 
         schedule[slot][day].push({
           name,
@@ -400,14 +184,12 @@ const RoutineManager = (() => {
       }
 
       timeSlots.forEach(slot => {
-        const tr = document.createElement('tr');
-
-        const timeTd = document.createElement('td');
+        const tr = document.createElement('tr');        const timeTd = document.createElement('td');
         timeTd.className = 'p-2 whitespace-nowrap text-center';
         timeTd.style.border = '1px solid var(--table-border)';
         timeTd.style.whiteSpace = 'nowrap';
         timeTd.style.minWidth = 'max-content';
-        timeTd.textContent = slot;
+        timeTd.innerHTML = slot;
         tr.appendChild(timeTd);
 
         ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
@@ -443,140 +225,145 @@ const RoutineManager = (() => {
       console.error('Error generating routine:', error);
       UIManager.showAlert('Error generating routine. Please check your inputs and try again.');
     }
+  }  /**
+   * Get current theme information for screenshot
+   * @returns {Object} Theme configuration object
+   */  function getCurrentThemeConfig() {
+    const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+
+    // Theme-specific configurations
+    const themeConfigs = {
+      dark: {
+        name: 'dark',
+        backgroundColor: '#34495e', // --routine-bg for dark theme
+        textColor: '#e2e8f0',
+        borderColor: '#4a5568'
+      },
+      light: {
+        name: 'light',
+        backgroundColor: '#ffffff', // --routine-bg for light theme
+        textColor: '#333333',
+        borderColor: '#cccccc'
+      },
+      pink: {
+        name: 'pink',
+        backgroundColor: '#ffe6f2', // --routine-bg for pink theme
+        textColor: '#330033',
+        borderColor: '#ff69b4'
+      }
+    };
+
+    return themeConfigs[currentTheme] || themeConfigs.dark;
+  }
+  function needsRoutineRegeneration() {
+    const userCards = document.querySelectorAll('#user-inputs > div');
+    const cachedRoutine = localStorage.getItem('cachedRoutine');
+    const currentTableBody = document.getElementById('routine-table-body');
+
+    // If no table exists, we need generation
+    if (!currentTableBody || currentTableBody.children.length === 0) {
+      return true;
+    }
+
+    // Check if there are new user inputs since last generation
+    let hasValidInputs = false;
+    userCards.forEach(card => {
+      const inputs = card.querySelectorAll('input.input-field');
+      const nameInput = inputs[0];
+      const jsonInput = inputs[1];
+
+      if (nameInput.value.trim() && jsonInput.value.trim()) {
+        hasValidInputs = true;
+      }
+    });
+
+    // If no valid inputs, no need to regenerate
+    if (!hasValidInputs) {
+      return false;
+    }
+      // Check if cached routine matches current table
+    return cachedRoutine !== currentTableBody.innerHTML;
   }
 
   /**
    * Capture screenshot of the routine using canvas approach
    */
   async function captureScreenshot() {
-    console.log('📸 DEBUG: Starting exact table screenshot capture');
-    
     try {
+      // Check if routine needs regeneration first
+      if (needsRoutineRegeneration()) {
+        console.log('🔄 DEBUG: Routine needs regeneration, generating first...');
+        UIManager.showAlert('Generating latest routine...', 'info');
+        await generateRoutine();
+        // Small delay to let the UI update
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
       // Check if there's a generated routine
       const routineTableBody = document.getElementById('routine-table-body');
       if (!routineTableBody || routineTableBody.children.length === 0) {
-        UIManager.showAlert("Please click 'Generate Routine' first.");
+        UIManager.showAlert("Please add some user inputs first.");
         return;
       }
-
-      console.log('📊 DEBUG: Found routine table with', routineTableBody.children.length, 'rows');
 
       // Check if CanvasScreenshotCapture is available
       if (typeof window.CanvasScreenshotCapture === 'undefined') {
         console.error('❌ DEBUG: CanvasScreenshotCapture not loaded');
         UIManager.showAlert('Screenshot module not loaded. Please refresh the page.');
         return;
-      }
+      }      console.log('🎯 DEBUG: Starting screenshot capture...');
+
+      // Get current theme configuration
+      const themeConfig = getCurrentThemeConfig();
+      console.log('🎨 DEBUG: Using theme config:', themeConfig);
 
       // Create canvas screenshot capture instance
       const screenshotCapture = new window.CanvasScreenshotCapture();
-      
-      // Create exact replica of the table on canvas
-      console.log('🎨 DEBUG: Creating exact table replica on canvas');
-      const imageDataUrl = await screenshotCapture.createTableFromScratch();
-      
+
+      // Add timeout protection to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Screenshot generation timed out after 30 seconds')), 30000);
+      });
+
+      // Create exact replica of the table on canvas with timeout and theme
+      const imageDataUrl = await Promise.race([
+        screenshotCapture.createTableFromScratch(themeConfig),
+        timeoutPromise
+      ]);
+
+      console.log('✅ DEBUG: Screenshot created successfully');
+
       // Create download link
       const link = document.createElement('a');
       link.href = imageDataUrl;
       link.download = `HomiesUnlocked_Routine_${new Date().toISOString().slice(0, 10)}.png`;
-      
+
       // Temporarily add to DOM, click, then remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      console.log('✅ DEBUG: Exact table screenshot captured and downloaded');
+
       UIManager.showAlert('Screenshot saved successfully!', 'success');
-      
+
     } catch (error) {
       console.error('❌ DEBUG: Error capturing exact table screenshot:', error);
       console.error('❌ DEBUG: Error stack:', error.stack);
       UIManager.showAlert('Screenshot failed: ' + error.message, 'error');
     }
-  }
-
-  /**
-   * Extract routine data from the current DOM table for canvas rendering
-   */
-  function extractRoutineDataFromDOM() {
-    const routineData = {
-      sections: []
-    };
-
-    // Get all routine entries from the table
-    const tableRows = document.querySelectorAll('#routine-table-body tr');
-    
-    tableRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length < 8) return; // Skip incomplete rows
-      
-      const timeSlot = cells[0].textContent.trim();
-      
-      // Process each day column (Sun-Sat)
-      for (let dayIndex = 1; dayIndex < 8; dayIndex++) {
-        const dayCell = cells[dayIndex];
-        const routineEntries = dayCell.querySelectorAll('.routine-entry');
-        
-        routineEntries.forEach(entry => {
-          const entryText = entry.textContent.trim();
-          if (!entryText) return;
-          
-          // Parse entry text: "Name - Course[Section] - Faculty"
-          const match = entryText.match(/^(.+?)\s*-\s*(.+?)\[(.+?)\]\s*-\s*(.+)$/);
-          if (match) {
-            const [, name, courseCode, section, faculty] = match;
-            const dayName = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][dayIndex - 1];
-            
-            // Convert time slot to start/end times
-            const [startTime, endTime] = timeSlot.split('-').map(t => t.trim());
-            
-            // Determine if it's a lab course
-            const isLab = courseCode.endsWith('L');
-            
-            routineData.sections.push({
-              courseCode: courseCode,
-              hasLab: false, // We'll handle this in the display
-              schedule: [{
-                day: dayName,
-                startTime: convertTo24Hour(startTime),
-                endTime: convertTo24Hour(endTime)
-              }],
-              labSchedules: [],
-              room: 'Room', // Placeholder
-              faculty: faculty,
-              name: name,
-              isLabEntry: isLab
-            });
-          }
-        });
-      }
-    });
-
-    console.log('📊 DEBUG: Extracted routine data:', routineData);
-    return routineData;
-  }
-
-  /**
-   * Convert 12-hour time format to 24-hour format
-   */
-  function convertTo24Hour(time12) {
-    const [time, period] = time12.split(/\s*(AM|PM)/i);
-    const [hours, minutes] = time.split(':').map(Number);
-    
-    let hour24 = hours;
-    if (period.toUpperCase() === 'PM' && hours !== 12) {
-      hour24 += 12;
-    } else if (period.toUpperCase() === 'AM' && hours === 12) {
-      hour24 = 0;
-    }
-    
-    return `${hour24.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
-  }
-
-  /**
+  }/**
    * Initialize event listeners for routine-related actions
    */
   function init() {
+    // Check if RoutineDecryptor is available
+    console.log('🔍 RoutineManager init - RoutineDecryptor available:', !!window.RoutineDecryptor);
+    console.log('🔍 RoutineManager init - RoutineDecryptor type:', typeof window.RoutineDecryptor);
+    if (window.RoutineDecryptor) {
+      console.log('🔍 RoutineDecryptor methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.RoutineDecryptor)));
+      console.log('🔍 processEncryptedRoutine exists:', typeof window.RoutineDecryptor.processEncryptedRoutine);
+    } else {
+      console.error('❌ RoutineDecryptor not found during init!');
+    }
+
     // Generate routine button
     const generateBtn = document.getElementById('generate-btn');
     if (generateBtn) {
@@ -592,14 +379,10 @@ const RoutineManager = (() => {
           generateBtn.disabled = false;
         }
       });
-    }
-
-    // Screenshot button - fixed event handling
+    }    // Screenshot button - fixed event handling
     const screenshotBtn = document.getElementById('screenshot-btn');
     if (screenshotBtn) {
       screenshotBtn.addEventListener('click', async () => {
-        console.log('📸 DEBUG: Screenshot button clicked');
-        
         const routineTableBody = document.getElementById('routine-table-body');
         if (!routineTableBody || routineTableBody.children.length === 0) {
           UIManager.showAlert("Please click 'Generate Routine' first.");
@@ -635,13 +418,11 @@ const RoutineManager = (() => {
       });
     }
   }
-
   // Public API
   return {
     init,
     generateRoutine,
     captureScreenshot,
-    processRoutineInput,
-    fetchOnlineRoutineData // Export for potential external use
+    processRoutineInput
   };
 })();

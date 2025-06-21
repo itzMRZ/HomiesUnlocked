@@ -32,8 +32,21 @@ const UserInputManager = (() => {
       }
     });
     localStorage.setItem('cachedUserInputs', JSON.stringify(cardsData));
+  }  /**
+   * Create a simple input field
+   * @param {string} placeholder - Placeholder text for the input
+   * @param {string} value - Initial value for the input
+   * @returns {HTMLElement} Input element
+   */
+  function createInputField(placeholder, value = '') {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'input-field';
+    input.placeholder = placeholder;
+    input.value = value;
+    input.addEventListener('input', cacheUserInputs);
+    return input;
   }
-
   /**
    * Add user input cards to the DOM
    * @param {Array} prefillData - Optional array of objects with name and routine data
@@ -48,69 +61,96 @@ const UserInputManager = (() => {
         const color = userColors[userCount % userColors.length];
         const userCard = document.createElement('div');
         userCard.className = 'input-card rounded-lg';
-        userCard.style.borderLeft = `4px solid ${color}`;
-
-        const inputRow = document.createElement('div');
+        userCard.style.borderLeft = `4px solid ${color}`;        const inputRow = document.createElement('div');
         inputRow.className = 'input-row';
 
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.className = 'input-field';
-        nameInput.placeholder = 'Name';
-        nameInput.style.flex = '1';
-        nameInput.style.lineHeight = '1.25';
-        nameInput.value = entry.name;
-        nameInput.addEventListener('input', cacheUserInputs);
+        // Create name row (name input)
+        const nameRow = document.createElement('div');
+        nameRow.className = 'name-row';
 
-        const routineInput = document.createElement('input');
-        routineInput.type = 'text';
-        routineInput.className = 'input-field';
-        routineInput.placeholder = 'Paste Routine ID Here';
-        routineInput.style.flex = '1';
-        routineInput.style.lineHeight = '1.25';
-        routineInput.value = entry.routine;
-        routineInput.addEventListener('input', cacheUserInputs);
+        // Create name input
+        const nameInput = createInputField('Name', entry.name);
 
-        inputRow.appendChild(nameInput);
-        inputRow.appendChild(routineInput);
+        // Create routine row (routine input)
+        const routineRow = document.createElement('div');
+        routineRow.className = 'routine-row';
+
+        // Create routine input
+        const routineInput = createInputField('Paste Routine ID Here', entry.routine);
+
+        // Create trash can button container
+        const trashBtnContainer = document.createElement('div');
+        trashBtnContainer.className = 'trash-btn-container';
+
+        // Create trash can button
+        const trashBtn = document.createElement('button');
+        trashBtn.type = 'button';
+        trashBtn.className = 'trash-btn';
+        trashBtn.innerHTML = '<i class="fas fa-trash" style="color: #dc2626;"></i>';
+        trashBtn.title = 'Clear both fields';
+
+        trashBtn.addEventListener('click', () => {
+          nameInput.value = '';
+          routineInput.value = '';
+          cacheUserInputs();
+        });        trashBtnContainer.appendChild(trashBtn);
+        nameRow.appendChild(nameInput);
+        routineRow.appendChild(routineInput);
+        inputRow.appendChild(nameRow);
+        inputRow.appendChild(routineRow);
+        inputRow.appendChild(trashBtnContainer);
         userCard.appendChild(inputRow);
         userInputsContainer.appendChild(userCard);
         userCount++;
-      });
-    } else {
-      // Otherwise, add default cards—2 per call (or 1 if only one left)
-      const cardsToAdd = remaining >= 2 ? 2 : 1;
-      for (let i = 0; i < cardsToAdd; i++) {
-        const color = userColors[userCount % userColors.length];
-        const userCard = document.createElement('div');
-        userCard.className = 'input-card rounded-lg';
-        userCard.style.borderLeft = `4px solid ${color}`;
+      });    } else if (remaining > 0) {
+      // Add one card per call
+      const color = userColors[userCount % userColors.length];
+      const userCard = document.createElement('div');
+      userCard.className = 'input-card rounded-lg';
+      userCard.style.borderLeft = `4px solid ${color}`;
 
-        const inputRow = document.createElement('div');
+      const inputRow = document.createElement('div');
         inputRow.className = 'input-row';
 
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.className = 'input-field';
-        nameInput.placeholder = 'Name';
-        nameInput.style.flex = '1';
-        nameInput.style.lineHeight = '1.25';
-        nameInput.addEventListener('input', cacheUserInputs);
+        // Create name row (name input)
+        const nameRow = document.createElement('div');
+        nameRow.className = 'name-row';
 
-        const routineInput = document.createElement('input');
-        routineInput.type = 'text';
-        routineInput.className = 'input-field';
-        routineInput.placeholder = 'Paste Routine ID Here';
-        routineInput.style.flex = '1';
-        routineInput.style.lineHeight = '1.25';
-        routineInput.addEventListener('input', cacheUserInputs);
+        // Create name input
+        const nameInput = createInputField('Name');
 
-        inputRow.appendChild(nameInput);
-        inputRow.appendChild(routineInput);
-        userCard.appendChild(inputRow);
+        // Create routine row (routine input)
+        const routineRow = document.createElement('div');
+        routineRow.className = 'routine-row';
+
+        // Create routine input
+        const routineInput = createInputField('Paste Routine ID Here');
+
+        // Create trash can button container
+        const trashBtnContainer = document.createElement('div');
+        trashBtnContainer.className = 'trash-btn-container';
+
+        // Create trash can button
+        const trashBtn = document.createElement('button');
+        trashBtn.type = 'button';
+        trashBtn.className = 'trash-btn';
+        trashBtn.innerHTML = '<i class="fas fa-trash" style="color: #dc2626;"></i>';
+        trashBtn.title = 'Clear both fields';
+
+        trashBtn.addEventListener('click', () => {
+          nameInput.value = '';
+          routineInput.value = '';
+          cacheUserInputs();
+        });
+
+        trashBtnContainer.appendChild(trashBtn);
+        nameRow.appendChild(nameInput);
+        routineRow.appendChild(routineInput);
+        inputRow.appendChild(nameRow);
+        inputRow.appendChild(routineRow);
+        inputRow.appendChild(trashBtnContainer);        userCard.appendChild(inputRow);
         userInputsContainer.appendChild(userCard);
         userCount++;
-      }
     }
 
     // Update cache after adding new cards
@@ -133,7 +173,6 @@ const UserInputManager = (() => {
       }
     }
   }
-
   /**
    * Initialize the UserInputManager
    */
@@ -142,8 +181,13 @@ const UserInputManager = (() => {
     loadCachedUserInputs();
     if (userCount === 0) {
       if (isMobileDevice()) {
+        // Mobile: Add 2 users initially
+        addUserInputCards();
         addUserInputCards();
       } else {
+        // Desktop: Add 4 users initially for 2x2 grid
+        addUserInputCards();
+        addUserInputCards();
         addUserInputCards();
         addUserInputCards();
       }
@@ -152,7 +196,11 @@ const UserInputManager = (() => {
     // Add event listener for "Add more users" button
     const addUserBtn = document.getElementById('add-user-btn');
     if (addUserBtn) {
-      addUserBtn.addEventListener('click', () => { addUserInputCards(); });
+      addUserBtn.addEventListener('click', () => {
+        // Add 2 users at a time to maintain grid pattern
+        addUserInputCards();
+        addUserInputCards();
+      });
     }
   }
 

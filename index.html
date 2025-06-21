@@ -5,11 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomiesUnlocked</title>
-
   <!-- External libraries -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lobster&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Custom styles -->
@@ -52,9 +52,9 @@
     <!-- Input Section Card -->
     <div class="card input-card rounded-lg shadow-md mb-6">
       <div id="user-inputs"></div>
-      <div class="flex justify-center mt-3">
-        <button id="add-user-btn" class="btn-hover rounded-full px-4 py-2 transition shadow" style="background-color: var(--button-bg); color: var(--text-color);">
-          + Add More Users
+      <div class="flex justify-center mt-3">        <button id="add-user-btn" class="btn-hover rounded-full px-4 py-2 transition shadow" style="background-color: var(--button-bg); color: var(--text-color);">
+          <span class="btn-text-mobile">+ Add 2 More</span>
+          <span class="btn-text-desktop">+ Add 2 More Users</span>
         </button>
       </div>
     </div>
@@ -185,15 +185,13 @@
           <li>Once finished, copy your routine ID and have your friends do the same.</li>
           <li>Input name and routine ID here on the site.</li>
           <li>Finally, enter your friends' (max 16) nicknames and routine IDs on this site and click Generate Routine.</li>
-        </ol>
-
-        <div class="border-t border-gray-500 pt-3">
-          <h3 class="font-semibold text-base">Method 2: Online Section IDs</h3>
-          <p class="mb-2">You can also use online section IDs by prefixing them with <code class="bg-gray-700 text-white px-1 rounded">#</code></p>
+        </ol>        <div class="border-t border-gray-500 pt-3">
+          <h3 class="font-semibold text-base">Method 2: Online Section IDs (Base69 Encrypted)</h3>
+          <p class="mb-2">You can also use encrypted section IDs by prefixing them with <code class="bg-gray-700 text-white px-1 rounded">#</code></p>
           <ul class="list-disc pl-5 space-y-1">
-            <li>Format: <code class="bg-gray-700 text-white px-1 rounded">#177609-178000-179500</code></li>
-            <li>Separate multiple section IDs with hyphens (-)</li>
-            <li>This will automatically fetch course data online</li>
+            <li>Format: <code class="bg-gray-700 text-white px-1 rounded">#abc123def456</code></li>
+            <li>Each 3-character group represents one section ID</li>
+            <li>This will automatically decrypt and fetch course data online</li>
           </ul>
         </div>
       </div>
@@ -222,7 +220,7 @@
   <script src="src/js/uiManager.js"></script>
   <script src="src/js/themeSwitcher.js"></script>
   <script src="src/js/userInputManager.js"></script>
-  <script src="src/js/decompressor.js"></script>
+  <script src="src/js/decryptor.js"></script>
   <script src="src/js/canvasScreenshot.js"></script>
   <script src="src/js/routineManager.js"></script>
   <script src="src/js/main.js"></script>

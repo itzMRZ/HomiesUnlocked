@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Test</title>
+</head>
+<body>
+    <h1>Testing Script Load Order</h1>
+    <div id="log"></div>
+
+    <script>
+        function log(message) {
+            const div = document.getElementById('log');
+            div.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+
+        log('1. Starting script load test...');
+    </script>
+
+    <script src="src/js/decryptor.js"></script>
+
+    <script>
+        log('2. After decryptor.js loaded');
+        log('3. RoutineDecryptor: ' + typeof window.RoutineDecryptor);
+
+        if (window.RoutineDecryptor) {
+            log('4. processEncryptedRoutine: ' + typeof window.RoutineDecryptor.processEncryptedRoutine);
+
+            // Test a simple function call
+            try {
+                const result = window.RoutineDecryptor.decode('000');
+                log('5. Test decode result: ' + result);
+            } catch (error) {
+                log('5. Test decode error: ' + error.message);
+            }
+        } else {
+            log('4. RoutineDecryptor not found!');
+        }
+    </script>
+</body>
+</html>

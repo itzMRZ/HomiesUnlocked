@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug RoutineDecryptor</title>
+</head>
+<body>
+    <h1>Debug RoutineDecryptor</h1>
+    <button onclick="testDecryptor()">Test Decryptor</button>
+    <div id="results"></div>
+
+    <script src="src/js/decryptor.js"></script>
+    <script>
+        async function testDecryptor() {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+
+            console.log('🔍 Testing RoutineDecryptor...');
+            console.log('🔍 window.RoutineDecryptor:', window.RoutineDecryptor);
+            console.log('🔍 Type:', typeof window.RoutineDecryptor);
+
+            if (!window.RoutineDecryptor) {
+                results.innerHTML += '<p style="color: red;">❌ RoutineDecryptor not found</p>';
+                return;
+            }
+
+            // Test 1: Check if processEncryptedRoutine exists
+            const methodType = typeof window.RoutineDecryptor.processEncryptedRoutine;
+            results.innerHTML += `<p>processEncryptedRoutine type: ${methodType}</p>`;
+
+            if (methodType !== 'function') {
+                results.innerHTML += '<p style="color: red;">❌ processEncryptedRoutine is not a function</p>';
+                const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(window.RoutineDecryptor));
+                results.innerHTML += `<p>Available methods: ${methods.join(', ')}</p>`;
+                return;
+            }
+
+            // Test 2: Try a simple decode
+            try {
+                const decoded = window.RoutineDecryptor.decode('000');
+                results.innerHTML += `<p>✅ Decode test: '000' → '${decoded}'</p>`;
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">❌ Decode test failed: ${error.message}</p>`;
+            }
+
+            // Test 3: Try processEncryptedRoutine with a test routine ID
+            try {
+                results.innerHTML += '<p>🔄 Testing processEncryptedRoutine...</p>';
+                const testRoutineId = '#000';
+                const result = await window.RoutineDecryptor.processEncryptedRoutine(testRoutineId);
+                results.innerHTML += `<p>✅ processEncryptedRoutine works! Result: ${JSON.stringify(result, null, 2)}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">❌ processEncryptedRoutine failed: ${error.message}</p>`;
+                console.error('Full error:', error);
+            }
+        }
+
+        // Test immediately when page loads
+        window.addEventListener('load', () => {
+            setTimeout(testDecryptor, 1000); // Wait 1 second for scripts to load
+        });
+    </script>
+</body>
+</html>

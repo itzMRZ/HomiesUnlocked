@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Decryptor Test</title>
+</head>
+<body>
+    <h1>Decryptor Test</h1>
+    <div id="results"></div>
+
+    <script src="decryptor.js"></script>
+    <script>
+        async function testDecryptor() {
+            const results = document.getElementById('results');
+
+            try {
+                // Test basic decoding
+                const encoded = '1mO';
+                const decoded = RoutineDecryptor.decode(encoded);
+                results.innerHTML += `<p>Decoded from '1mO': ${decoded}</p>`;
+
+                // Test routine decompression
+                const routineString = '#1mO';
+                const sectionIds = RoutineDecryptor.decompressRoutine(routineString);
+                results.innerHTML += `<p>Decompressed section IDs: ${sectionIds.join(', ')}</p>`;
+
+                // Test with multiple sections
+                const multiRoutine = '#1mO2nP3oQ';
+                const multiSectionIds = RoutineDecryptor.decompressRoutine(multiRoutine);
+                results.innerHTML += `<p>Multiple sections: ${multiSectionIds.join(', ')}</p>`;
+
+                results.innerHTML += '<p style="color: green;">All tests passed!</p>';
+
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">Test error: ${error.message}</p>`;
+                console.error('Test error:', error);
+            }
+        }
+
+        window.addEventListener('load', testDecryptor);
+    </script>
+</body>
+</html>
