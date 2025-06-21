@@ -7,9 +7,8 @@
  * - Handles acknowledgements section
  * - Detects Facebook/Messenger browser and shows warning modal
  */
-const UIManager = (() => {
-  /**
-   * Show a custom alert to the user
+const UIManager = (() => {  /**
+   * Show a custom alert to the user (optimized)
    * @param {string} message - The message to display
    * @param {string} type - Alert type ('error', 'success', 'info')
    */
@@ -28,21 +27,25 @@ const UIManager = (() => {
     // Create new alert element
     const alertDiv = document.createElement('div');
     alertDiv.className = `custom-alert fixed top-4 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+    alertDiv.style.opacity = '0';
+    alertDiv.style.transition = 'opacity 0.3s ease';
     alertDiv.textContent = message;
     document.body.appendChild(alertDiv);
 
-    // Fade in
-    setTimeout(() => {
+    // Immediate fade in
+    requestAnimationFrame(() => {
       alertDiv.style.opacity = '1';
-    }, 10);
+    });
 
-    // Fade out and remove after 4 seconds (longer for better readability)
+    // Auto remove after 3 seconds
     setTimeout(() => {
       alertDiv.style.opacity = '0';
       setTimeout(() => {
-        alertDiv.remove();
-      }, 500);
-    }, 4000);
+        if (alertDiv.parentNode) {
+          alertDiv.remove();
+        }
+      }, 300);
+    }, 3000);
   }
 
   /**
@@ -90,21 +93,20 @@ const UIManager = (() => {
     if (!modal) return;
 
     // Show modal immediately
-    modal.style.display = 'flex';
-
-    // Copy link functionality
+    modal.style.display = 'flex';    // Copy link functionality
     function copyLink() {
       const link = 'https://homies-unlocked.itzmrz.xyz/';
 
-      if (navigator.clipboard) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(() => {
           showAlert('Link copied to clipboard!', 'success');
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => {
-            copyBtn.textContent = 'Copy';
-          }, 2000);
+          if (copyBtn) {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+              copyBtn.textContent = 'Copy';
+            }, 2000);
+          }
         }).catch(() => {
-          // Fallback for older browsers
           fallbackCopyText(link);
         });
       } else {
@@ -114,26 +116,32 @@ const UIManager = (() => {
 
     // Fallback copy method
     function fallbackCopyText(text) {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
       try {
-        document.execCommand('copy');
-        showAlert('Link copied to clipboard!', 'success');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy';
-        }, 2000);
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (successful) {
+          showAlert('Link copied to clipboard!', 'success');
+          if (copyBtn) {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+              copyBtn.textContent = 'Copy';
+            }, 2000);
+          }
+        } else {
+          showAlert('Please manually copy the link above', 'info');
+        }
       } catch (err) {
+        console.warn('Copy failed:', err);
         showAlert('Please manually copy the link above', 'info');
       }
-
-      document.body.removeChild(textArea);
     }
 
     // Close modal
