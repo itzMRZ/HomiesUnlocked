@@ -61,8 +61,6 @@ HomiesUnlocked/
    ```
 2. Open `index.html` in your browser or use a local development server.
 
-## Contributing
-We welcome contributions to HomiesUnlocked! Please read our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and suggest enhancements.
 
 ## Technologies Used
 - HTML5
@@ -75,11 +73,11 @@ We welcome contributions to HomiesUnlocked! Please read our [Contributing Guide]
 
 ## Acknowledgements
 This project was made possible thanks to:
-- [Tashfeen Vaia (Eniamza)](https://github.com/Eniamza) - For invaluable support and resources
-- [Moon](https://github.com/mahathirmoon) - For additional support
+- [Tashfeen Vaia (Eniamza)](https://github.com/Eniamza) - for the CDN
+- [Moon](https://github.com/mahathirmoon) - for squashing some bugs 
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ## Contact
-For any questions or inquiries, please contact the repository owner [itzMRZ](https://github.com/itzMRZ).
+For any questions or inquiries, please contact the repository owner [itzMRZ](https://itzmrz.xyz).
