@@ -9,10 +9,39 @@
 const UserInputManager = (() => {
   // Constants
   const MAX_USERS = 16;
-  const userColors = [
-    '#8e44ad', '#27ae60', '#2980b9', '#d35400', '#c0392b',
-    '#f39c12', '#16a085', '#2c3e50', '#7f8c8d', '#e74c3c', '#3498db'
+  const USER_COLOR_COMBOS = window.USER_COLOR_COMBOS ?? [
+    { background: '#FF6B6B', accent: '#E63946', text: '#FFFFFF' },
+    { background: '#FFA94D', accent: '#F3722C', text: '#FFFFFF' },
+    { background: '#FFD93D', accent: '#F4B400', text: '#FFFFFF' },
+    { background: '#6EE7B7', accent: '#34D399', text: '#FFFFFF' },
+    { background: '#3DCCC7', accent: '#119DA4', text: '#FFFFFF' },
+    { background: '#4EA8DE', accent: '#1D4ED8', text: '#FFFFFF' },
+    { background: '#9D79BC', accent: '#6C4AB6', text: '#FFFFFF' },
+    { background: '#CBAACB', accent: '#9F7E9F', text: '#FFFFFF' },
+    { background: '#F28482', accent: '#E05658', text: '#FFFFFF' },
+    { background: '#81B29A', accent: '#467864', text: '#FFFFFF' }
   ];
+
+  window.USER_COLOR_COMBOS = USER_COLOR_COMBOS;
+
+  function resolvePalette(index) {
+    return USER_COLOR_COMBOS[index % USER_COLOR_COMBOS.length];
+  }
+
+  function refreshCardColors() {
+    const userInputsContainer = document.getElementById('user-inputs');
+    if (!userInputsContainer) {
+      return;
+    }
+
+    const cards = Array.from(userInputsContainer.querySelectorAll('.input-card'));
+    cards.forEach((card, index) => {
+      const { background, accent } = resolvePalette(index);
+      const accentColor = accent ?? background;
+      card.style.borderLeft = `4px solid ${accentColor}`;
+      card.dataset.userColor = background;
+    });
+  }
 
   // Variables
   let userCount = 0;
@@ -26,26 +55,23 @@ const UserInputManager = (() => {
     if (cacheTimeout) {
       clearTimeout(cacheTimeout);
     }
-    
+
     // Debounce for 300ms to prevent excessive operations
     cacheTimeout = setTimeout(() => {
       try {
         const cardsData = [];
         const userInputsContainer = document.getElementById('user-inputs');
-        
-        // Early return if container doesn't exist
+
         if (!userInputsContainer) {
           console.warn('UserInputs container not found during caching');
           return;
         }
-        
-        const allCards = userInputsContainer.children;
 
-        // Use for loop instead of forEach for better performance with HTMLCollection
-        for (let i = 0; i < allCards.length; i++) {
-          const card = allCards[i];
+        const allCards = Array.from(userInputsContainer.children);
+
+        for (const card of allCards) {
           const inputs = card.querySelectorAll('input.input-field');
-          
+
           if (inputs.length >= 2) {
             const nameValue = inputs[0].value.trim();
             const routineValue = inputs[1].value.trim();
@@ -63,7 +89,7 @@ const UserInputManager = (() => {
         // Prevent localStorage thrashing - only update if data actually changed
         const currentCached = localStorage.getItem('cachedUserInputs');
         const newCachedString = cardsData.length > 0 ? JSON.stringify(cardsData) : null;
-        
+
         if (currentCached !== newCachedString) {
           if (newCachedString) {
             localStorage.setItem('cachedUserInputs', newCachedString);
@@ -90,11 +116,87 @@ const UserInputManager = (() => {
     input.className = 'input-field';
     input.placeholder = placeholder;
     input.value = value;
-    
+
     // Use debounced caching to prevent excessive calls
     input.addEventListener('input', cacheUserInputs);
     return input;
-  }  /**
+  }
+
+  /**
+   * Sync the userCount variable with the current number of cards in the DOM
+   * @returns {number} The number of input cards currently rendered
+   */
+  function syncUserCountFromDom() {
+    const userInputsContainer = document.getElementById('user-inputs');
+    userCount = userInputsContainer
+      ? userInputsContainer.querySelectorAll('.input-card').length
+      : 0;
+    return userCount;
+  }
+
+  /**
+   * Find an existing empty card (both fields blank)
+   * @returns {HTMLElement|null} Empty card element if available
+   */
+  function findEmptyCard() {
+    const userInputsContainer = document.getElementById('user-inputs');
+    if (!userInputsContainer) {
+      return null;
+    }
+
+    return Array.from(userInputsContainer.querySelectorAll('.input-card')).find(card => {
+      const inputs = card.querySelectorAll('input.input-field');
+      if (inputs.length < 2) {
+        return false;
+      }
+
+      const nameValue = inputs[0].value.trim();
+      const routineValue = inputs[1].value.trim();
+      return !nameValue && !routineValue;
+    }) || null;
+  }
+
+  /**
+   * Populate an available empty card or create a new one for the given entry
+   * @param {Object} entry - Prefilled data (name and routine)
+   */
+  function populateCardWithEntry(entry = {}) {
+    if (userCount >= MAX_USERS) {
+      return;
+    }
+
+    const emptyCard = findEmptyCard();
+    const nameValue = entry?.name ?? '';
+    const routineValue = entry?.routine ?? '';
+
+    if (emptyCard) {
+      const inputs = emptyCard.querySelectorAll('input.input-field');
+      if (inputs.length >= 2) {
+        inputs[0].value = nameValue;
+        inputs[1].value = routineValue;
+      }
+      return;
+    }
+
+    createSingleCard(nameValue, routineValue);
+  }
+
+  /**
+   * Ensure at least one card exists (used as safeguard when no data present)
+   */
+  function ensureAtLeastOneCardExists() {
+    const userInputsContainer = document.getElementById('user-inputs');
+    if (!userInputsContainer) {
+      return;
+    }
+
+    const existingCards = userInputsContainer.querySelectorAll('.input-card').length;
+    if (existingCards === 0 && userCount < MAX_USERS) {
+      createSingleCard('', '');
+    }
+  }
+
+  /**
    * Add user input cards to the DOM (optimized)
    * @param {Array} prefillData - Optional array of objects with name and routine data
    */
@@ -106,15 +208,18 @@ const UserInputManager = (() => {
     }
 
     // If prefillData is provided and has entries, add only those cards
-    if (prefillData && prefillData.length) {
+    syncUserCountFromDom();
+
+    if (Array.isArray(prefillData) && prefillData.length) {
       prefillData.forEach(entry => {
-        if (userCount >= MAX_USERS) return; // Safety check
-        createSingleCard(entry.name, entry.routine);
+        populateCardWithEntry(entry);
       });
-    } else if (userCount < MAX_USERS) {
-      // Add one empty card
-      createSingleCard('', '');
+    } else {
+      ensureAtLeastOneCardExists();
     }
+
+    // Refresh the userCount to reflect the current DOM state
+    syncUserCountFromDom();
 
     // Cache only once at the end instead of per card
     cacheUserInputs();
@@ -131,12 +236,14 @@ const UserInputManager = (() => {
       console.error('❌ Cannot create card - user inputs container not found');
       return;
     }
-    
-    const color = userColors[userCount % userColors.length];
-    
+
+  const { background, accent } = resolvePalette(userCount);
+  const accentColor = accent ?? background;
+
     const userCard = document.createElement('div');
     userCard.className = 'input-card rounded-lg';
-    userCard.style.borderLeft = `4px solid ${color}`;
+  userCard.style.borderLeft = `4px solid ${accentColor}`;
+  userCard.dataset.userColor = background;
 
     const inputRow = document.createElement('div');
     inputRow.className = 'input-row';
@@ -194,26 +301,87 @@ const UserInputManager = (() => {
         console.error("Error parsing cached user inputs:", err);
       }
     }
-  }  /**
+  }
+
+  /**
+   * Ensure the interface always displays at least a minimum number of cards.
+   * @param {number} minCount - Minimum total card count to maintain.
+   */
+  function ensureMinimumCardCount(minCount = 2) {
+    const userInputsContainer = document.getElementById('user-inputs');
+    if (!userInputsContainer) {
+      return;
+    }
+
+    let currentCount = syncUserCountFromDom();
+    const targetCount = Math.min(minCount, MAX_USERS);
+
+    while (currentCount < targetCount) {
+      createSingleCard('', '');
+      currentCount += 1;
+    }
+
+    syncUserCountFromDom();
+  }
+
+  /**
+   * Ensure a minimum number of empty cards remain available for new inputs.
+   * @param {number} minEmpty - Minimum empty card count to maintain.
+   */
+  function ensureMinimumEmptyCards(minEmpty = 2) {
+    const userInputsContainer = document.getElementById('user-inputs');
+    if (!userInputsContainer) {
+      return;
+    }
+
+    const cards = Array.from(userInputsContainer.querySelectorAll('.input-card'));
+    let emptyCardCount = 0;
+
+    for (const card of cards) {
+      const inputs = card.querySelectorAll('input.input-field');
+      if (inputs.length >= 2) {
+        const nameValue = inputs[0].value.trim();
+        const routineValue = inputs[1].value.trim();
+        if (!nameValue && !routineValue) {
+          emptyCardCount += 1;
+        }
+      }
+    }
+
+    let totalCards = cards.length;
+
+    while (emptyCardCount < minEmpty && totalCards < MAX_USERS) {
+      createSingleCard('', '');
+      emptyCardCount += 1;
+      totalCards += 1;
+    }
+
+    syncUserCountFromDom();
+  }
+
+  /**
    * Clear potentially corrupted localStorage data
    */
   function clearStorageConflicts() {
     try {
-      // Check for corrupted data
       const cachedInputs = localStorage.getItem('cachedUserInputs');
-      if (cachedInputs) {
-        const parsed = JSON.parse(cachedInputs);
-        if (!Array.isArray(parsed)) {
-          console.warn('🗑️ Clearing corrupted cachedUserInputs');
-          localStorage.removeItem('cachedUserInputs');
-        }
+      if (!cachedInputs) {
+        return;
+      }
+
+      const parsed = JSON.parse(cachedInputs);
+      if (!Array.isArray(parsed)) {
+        console.warn('🗑️ Clearing corrupted cachedUserInputs');
+        localStorage.removeItem('cachedUserInputs');
       }
     } catch (error) {
-      console.warn('🗑️ Clearing corrupted localStorage data');
+      console.warn('🗑️ Clearing corrupted localStorage data', error);
       localStorage.removeItem('cachedUserInputs');
       localStorage.removeItem('cachedRoutine');
     }
-  }  /**
+  }
+
+  /**
    * Initialize the UserInputManager (optimized)
    */
   function init() {
@@ -223,40 +391,50 @@ const UserInputManager = (() => {
       console.error('❌ User inputs container not found!');
       return;
     }
-    
+
     // Clear any existing content to prevent duplicates
     userInputsContainer.innerHTML = '';
     userCount = 0;
 
-    // Clear storage conflicts before loading
+  // Clear storage conflicts before loading
     clearStorageConflicts();
 
-    // Load cached input fields if available
-    loadCachedUserInputs();
+  // Ensure baseline empty cards are rendered immediately
+  ensureMinimumCardCount(2);
 
-    // Ensure minimum number of fields based on device type
-    const isMobile = isMobileDevice();
-    const minFields = isMobile ? 2 : 4;
-    
-    // Add minimum required fields
-    while (userCount < minFields) {
-      createSingleCard('', '');
-    }
+  // Load cached input fields if available (fills existing cards first)
+  loadCachedUserInputs();
+
+  // Recalculate userCount based on actual cards in DOM
+    syncUserCountFromDom();
+
+    // Ensure exactly two empty fields are available on initial load
+    ensureMinimumEmptyCards(2);
+
+  // Final sync and cache update after automatic adjustments
+  syncUserCountFromDom();
+  cacheUserInputs();
 
     // Add event listener for "Add more users" button
     const addUserBtn = document.getElementById('add-user-btn');
     if (addUserBtn) {
       addUserBtn.addEventListener('click', () => {
+        const isMobile = isMobileDevice();
         if (isMobile) {
           // Mobile: Add 1 user at a time
           createSingleCard('', '');
         } else {
           // Desktop: Add 2 users at a time to maintain even number
-          createSingleCard('', '');
-          createSingleCard('', '');
+          if (userCount < MAX_USERS) {
+            createSingleCard('', '');
+          }
+          if (userCount < MAX_USERS) {
+            createSingleCard('', '');
+          }
         }
-        
-        // Cache after adding
+
+        // After adding new cards keep cache and counters in sync
+        syncUserCountFromDom();
         cacheUserInputs();
       });
     } else {
@@ -277,6 +455,7 @@ const UserInputManager = (() => {
     addUserInputCards,
     loadCachedUserInputs,
     cacheUserInputs,
-    isMobileDevice
+    isMobileDevice,
+    refreshCardColors
   };
 })();

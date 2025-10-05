@@ -7,31 +7,45 @@
  * - Capturing screenshots of routines
  * - Fetching online routine data for IDs starting with '#'
  */
-const RoutineManager = (() => {  // Constants
+const RoutineManager = (() => {
   const timeSlots = [
-    '8:00 AM<br>9:20 AM', '9:30 AM<br>10:50 AM',
-    '11:00 AM<br>12:20 PM', '12:30 PM<br>1:50 PM',
-    '2:00 PM<br>3:20 PM', '3:30 PM<br>4:50 PM',
-    '5:00 PM<br>6:20 PM'  ];
+    '8:00 AM<br>9:20 AM',
+    '9:30 AM<br>10:50 AM',
+    '11:00 AM<br>12:20 PM',
+    '12:30 PM<br>1:50 PM',
+    '2:00 PM<br>3:20 PM',
+    '3:30 PM<br>4:50 PM',
+    '5:00 PM<br>6:20 PM'
+  ];
 
-  /**
-   * Process routine input (either JSON or online ID)
-   * @param {string} input - Either JSON string or online ID starting with #
-   * @returns {Promise<Array>} Promise resolving to routine data
-   */  async function processRoutineInput(input) {
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const USER_COLOR_COMBOS = window.USER_COLOR_COMBOS ?? [
+    { background: '#FF6B6B', accent: '#E63946', text: '#FFFFFF' },
+    { background: '#FFA94D', accent: '#F3722C', text: '#FFFFFF' },
+    { background: '#FFD93D', accent: '#F4B400', text: '#FFFFFF' },
+    { background: '#6EE7B7', accent: '#34D399', text: '#FFFFFF' },
+    { background: '#3DCCC7', accent: '#119DA4', text: '#FFFFFF' },
+    { background: '#4EA8DE', accent: '#1D4ED8', text: '#FFFFFF' },
+    { background: '#9D79BC', accent: '#6C4AB6', text: '#FFFFFF' },
+    { background: '#CBAACB', accent: '#9F7E9F', text: '#FFFFFF' },
+    { background: '#F28482', accent: '#E05658', text: '#FFFFFF' },
+    { background: '#81B29A', accent: '#467864', text: '#FFFFFF' }
+  ];
+
+  window.USER_COLOR_COMBOS = USER_COLOR_COMBOS;
+
+  let cachedSlotBoundaries = null;
+
+  async function processRoutineInput(input) {
     const trimmedInput = input.trim();
 
     if (trimmedInput.startsWith('#')) {
-      // Encrypted mode - use new decryptor
-      console.log('🔍 DEBUG: RoutineDecryptor object:', window.RoutineDecryptor);
-      console.log('🔍 DEBUG: RoutineDecryptor type:', typeof window.RoutineDecryptor);
-
       if (!window.RoutineDecryptor) {
         throw new Error('RoutineDecryptor not loaded');
       }
 
       if (typeof window.RoutineDecryptor.processEncryptedRoutine !== 'function') {
-        console.log('🔍 DEBUG: Available methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.RoutineDecryptor)));
         throw new Error('processEncryptedRoutine method not found');
       }
 
@@ -41,130 +55,265 @@ const RoutineManager = (() => {  // Constants
         console.error('❌ DEBUG: Error processing encrypted routine:', error);
         throw new Error('Invalid routine format: ' + error.message);
       }
-    } else {
-      // JSON mode - parse directly
+    }
+
+    try {
       return JSON.parse(trimmedInput);
+    } catch (error) {
+      console.error('Invalid JSON routine format:', error);
+      throw new Error('Invalid JSON routine format');
     }
   }
 
-  /**
-   * Convert time string to minutes for easier comparison
-   * @param {string} timeStr - The time string to convert (e.g., "9:30 AM")
-   * @returns {number} Total minutes
-   */
   function timeToMinutes(timeStr) {
-    timeStr = timeStr.trim().replace(/([AP]M)/i, ' $1').replace(/\s+/g, ' ').toUpperCase();
-    const [time, period] = timeStr.split(' ');
-    const [hours, minutes] = time.split(':').map(Number);
-    let total = hours * 60 + (minutes || 0);
-    if (period === 'PM' && hours !== 12) total += 12 * 60;
-    if (period === 'AM' && hours === 12) total -= 12 * 60;
-    return total;
+    if (!timeStr) {
+      return NaN;
+    }
+
+    const sanitized = timeStr.toString().trim().replace(/\u00a0/g, ' ');
+    const timeRegex = /^(\d{1,2})(?::(\d{2}))?\s*([AP]M)$/i;
+    const match = timeRegex.exec(sanitized);
+
+    if (!match) {
+      return NaN;
+    }
+
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2] ?? '0', 10);
+    const period = match[3].toUpperCase();
+
+    if (period === 'PM' && hours !== 12) {
+      hours += 12;
+    }
+
+    if (period === 'AM' && hours === 12) {
+      hours = 0;
+    }
+
+    return hours * 60 + minutes;
   }
 
-  /**
-   * Determine text color based on background color contrast
-   * @param {string} hex - Hex color code
-   * @returns {string} "black" or "white" depending on contrast
-   */
-  function getTextColor(hex) {
-    const r = parseInt(hex.substring(1, 3), 16);
-    const g = parseInt(hex.substring(3, 5), 16);
-    const b = parseInt(hex.substring(5, 7), 16);
-    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return lum > 0.5 ? 'black' : 'white';
+  function createEmptySchedule() {
+    const schedule = {};
+    for (const slot of timeSlots) {
+      schedule[slot] = {};
+      for (const day of daysOfWeek) {
+        schedule[slot][day] = [];
+      }
+    }
+    return schedule;
   }
 
-  /**
-   * Format day string to standard format
-   * @param {string} dayStr - Day string to format
-   * @returns {string} Formatted day string
-   */
+  function parseSessionDetails(session) {
+    if (!session) {
+      return null;
+    }
+
+    const normalized = session.replace(/\u00a0/g, ' ').trim();
+    const dayRegex = /^([A-Za-z]+)/;
+    const sessionMatch = dayRegex.exec(normalized);
+    if (!sessionMatch) {
+      return null;
+    }
+
+    const timePattern = /(\d{1,2}:\d{2}\s*[AP]M)/gi;
+    const times = normalized.match(timePattern);
+    if (!times || times.length === 0) {
+      return null;
+    }
+
+    const startTime = times[0];
+    const endTime = times[1] ?? times[0];
+
+    return {
+      day: formatDay(sessionMatch[1]),
+      startTime,
+      endTime
+    };
+  }
+
+  function getSlotBoundaries() {
+    if (!cachedSlotBoundaries) {
+      cachedSlotBoundaries = timeSlots
+        .map(slot => {
+          const [slotStartStr, slotEndStr] = slot.split('<br>').map(part => part.trim());
+          const startMinutes = timeToMinutes(slotStartStr);
+          const endMinutes = timeToMinutes(slotEndStr);
+
+          if (Number.isNaN(startMinutes) || Number.isNaN(endMinutes)) {
+            return null;
+          }
+
+          return {
+            label: slot,
+            startMinutes,
+            endMinutes
+          };
+        })
+        .filter(Boolean);
+    }
+
+    return cachedSlotBoundaries;
+  }
+
+  function resolvePalette(index) {
+    return USER_COLOR_COMBOS[index % USER_COLOR_COMBOS.length];
+  }
+
   function formatDay(dayStr) {
     const days = { SUN: 'Sun', MON: 'Mon', TUE: 'Tue', WED: 'Wed', THU: 'Thu', FRI: 'Fri', SAT: 'Sat' };
     return days[dayStr.toUpperCase().substring(0, 3)] || dayStr;
   }
 
-  /**
-   * Process a single session and add it to the schedule
-   * @param {Object} schedule - The schedule object to update
-   * @param {string} session - Session string (e.g., "MON (9:30 AM-10:50 AM)")
-   * @param {string} name - User name
-   * @param {Object} course - Course information
-   * @param {string} color - Color for this user
-   */
-  function processSession(schedule, session, name, course, color) {
-    const [dayPart, timePart] = session.split(' (');
-    const day = formatDay(dayPart.trim());
-    const rawTime = timePart.replace(')', '').replace(/([AP]M)/gi, ' $1').trim();
-    const [startTime, endTime] = rawTime.split('-').map(t => t.trim());
-    const sStart = timeToMinutes(startTime);
-    const sEnd = timeToMinutes(endTime);    timeSlots.forEach(slot => {
-      const [slotStartStr, slotEndStr] = slot.replace('<br>', '-').split('-');
-      const slotStart = timeToMinutes(slotStartStr.trim());
-      const slotEnd = timeToMinutes(slotEndStr.trim());      if (sStart <= slotEnd && sEnd >= slotStart) {
-        // Determine if this is a lab session based on the course object
-        const isLabSession = course.Lab && course.Lab !== 'N/A' && course.Lab.includes(session);
+  function processSession(schedule, parsedSession, sessionLabel, name, course, color, textColor) {
+    if (!parsedSession) {
+      console.warn('⚠️ Unable to parse session string:', sessionLabel);
+      return;
+    }
+
+    const sStart = timeToMinutes(parsedSession.startTime);
+    const sEnd = timeToMinutes(parsedSession.endTime);
+
+    if (Number.isNaN(sStart) || Number.isNaN(sEnd)) {
+      console.warn('⚠️ Ignoring session with invalid time range:', sessionLabel);
+      return;
+    }
+
+    const { day } = parsedSession;
+
+    for (const { label, startMinutes, endMinutes } of getSlotBoundaries()) {
+      if (sStart <= endMinutes && sEnd >= startMinutes) {
+        const isLabSession = course.Lab && course.Lab !== 'N/A' && course.Lab.includes(sessionLabel);
         const displayCourse = isLabSession && course.labCourseCode ? course.labCourseCode : course.Course;
 
-        schedule[slot][day].push({
+        schedule[label][day].push({
           name,
           course: displayCourse,
           section: course.section.replace(/Section\s*/i, ''),
           faculty: course.faculty,
           color,
-          textColor: getTextColor(color)
+          textColor
         });
       }
-    });
+    }
+  }
+
+  function addCourseSessionsToSchedule(schedule, course, name, color, textColor, parsedSessionCache) {
+    for (const type of ['Class', 'Lab']) {
+      const sessionValue = course[type];
+      if (!sessionValue || sessionValue === 'N/A') {
+        continue;
+      }
+
+      const rawSessions = sessionValue.split(', ');
+      for (const rawSession of rawSessions) {
+        const cacheKey = `${rawSession}`;
+        if (!parsedSessionCache.has(cacheKey)) {
+          parsedSessionCache.set(cacheKey, parseSessionDetails(rawSession));
+        }
+
+        processSession(
+          schedule,
+          parsedSessionCache.get(cacheKey),
+          rawSession,
+          name,
+          course,
+          color,
+          textColor
+        );
+      }
+    }
+  }
+
+  function buildScheduleFromRoutineData(schedule, name, routineData, palette) {
+    const { background: color, text: textColor } = palette;
+    const parsedSessionCache = new Map();
+    for (const course of routineData) {
+      addCourseSessionsToSchedule(schedule, course, name, color, textColor, parsedSessionCache);
+    }
+  }
+
+  function renderScheduleTable(schedule, routineTableBody) {
+    routineTableBody.innerHTML = '';
+
+    const routineTable = routineTableBody.closest('table');
+    if (routineTable) {
+      routineTable.style.tableLayout = 'auto';
+      routineTable.style.width = 'auto';
+      routineTable.style.minWidth = '100%';
+      routineTable.style.whiteSpace = 'nowrap';
+    }
+
+    for (const slot of timeSlots) {
+      const rowElement = document.createElement('tr');
+      const timeCell = document.createElement('td');
+      timeCell.className = 'p-2 whitespace-nowrap text-center';
+      timeCell.style.border = '1px solid var(--table-border)';
+      timeCell.style.whiteSpace = 'nowrap';
+      timeCell.style.minWidth = 'max-content';
+      timeCell.innerHTML = slot;
+      rowElement.appendChild(timeCell);
+
+      for (const day of daysOfWeek) {
+        const dayCell = document.createElement('td');
+        dayCell.className = 'p-2 align-top text-center';
+        dayCell.style.border = '1px solid var(--table-border)';
+        dayCell.style.whiteSpace = 'nowrap';
+        dayCell.style.minWidth = 'max-content';
+        dayCell.style.overflow = 'visible';
+
+        for (const entry of schedule[slot][day]) {
+          const entryDiv = document.createElement('div');
+          entryDiv.className = 'routine-entry';
+          entryDiv.style.backgroundColor = entry.color;
+          entryDiv.style.color = entry.textColor;
+          entryDiv.style.whiteSpace = 'nowrap';
+          entryDiv.style.overflow = 'visible';
+          entryDiv.style.textOverflow = 'clip';
+          entryDiv.style.minWidth = 'max-content';
+          entryDiv.textContent = `${entry.name} - ${entry.course}[${entry.section}] - ${entry.faculty}`;
+          dayCell.appendChild(entryDiv);
+        }
+
+        rowElement.appendChild(dayCell);
+      }
+
+      routineTableBody.appendChild(rowElement);
+    }
   }
 
   /**
    * Generate the combined routine from user inputs
    */
   async function generateRoutine() {
-    const userColors = [
-      '#8e44ad', '#27ae60', '#2980b9', '#d35400', '#c0392b',
-      '#f39c12', '#16a085', '#2c3e50', '#7f8c8d', '#e74c3c', '#3498db'
-    ];
-
     // Initialize schedule object
-    const schedule = {};
-    timeSlots.forEach(slot => {
-      schedule[slot] = { Sun: [], Mon: [], Tue: [], Wed: [], Thu: [], Fri: [], Sat: [] };
-    });
+    const schedule = createEmptySchedule();
 
-    // Process each user's routine data
-    const userCards = document.querySelectorAll('#user-inputs > div');
+    const userCards = Array.from(document.querySelectorAll('#user-inputs > div'));
     const promises = [];
-
-    userCards.forEach((card, idx) => {
+    for (let idx = 0; idx < userCards.length; idx += 1) {
+      const card = userCards[idx];
       const inputs = card.querySelectorAll('input.input-field');
-      const nameInput = inputs[0];
-      const jsonInput = inputs[1];
-      const color = userColors[idx % userColors.length];
+      const nameValue = inputs[0]?.value.trim();
+      const routineValue = inputs[1]?.value.trim();
 
-      if (!nameInput.value.trim() || !jsonInput.value.trim()) return;
+      if (!nameValue || !routineValue) {
+        continue;
+      }
 
-      const promise = processRoutineInput(jsonInput.value.trim())
+      const palette = resolvePalette(idx);
+
+      const promise = processRoutineInput(routineValue)
         .then(data => {
-          data.forEach(course => {
-            ['Class', 'Lab'].forEach(type => {
-              if (course[type] && course[type] !== 'N/A') {
-                course[type].split(', ').forEach(session => {
-                  processSession(schedule, session, nameInput.value.trim(), course, color);
-                });
-              }
-            });
-          });
+          buildScheduleFromRoutineData(schedule, nameValue, data, palette);
         })
         .catch(err => {
-          console.error(`Error processing input for ${nameInput.value.trim()}:`, err);
-          UIManager.showAlert(`Error processing routine for ${nameInput.value.trim()}: ${err.message}`);
+          console.error(`Error processing input for ${nameValue}:`, err);
+          UIManager.showAlert(`Error processing routine for ${nameValue}: ${err.message}`);
         });
 
       promises.push(promise);
-    });
+    }
 
     try {
       // Wait for all routine processing to complete
@@ -172,52 +321,7 @@ const RoutineManager = (() => {  // Constants
 
       // Generate routine table
       const routineTableBody = document.getElementById('routine-table-body');
-      routineTableBody.innerHTML = '';
-
-      // Ensure the parent table has proper no-wrap styling
-      const routineTable = routineTableBody.closest('table');
-      if (routineTable) {
-        routineTable.style.tableLayout = 'auto';
-        routineTable.style.width = 'auto';
-        routineTable.style.minWidth = '100%';
-        routineTable.style.whiteSpace = 'nowrap';
-      }
-
-      timeSlots.forEach(slot => {
-        const tr = document.createElement('tr');        const timeTd = document.createElement('td');
-        timeTd.className = 'p-2 whitespace-nowrap text-center';
-        timeTd.style.border = '1px solid var(--table-border)';
-        timeTd.style.whiteSpace = 'nowrap';
-        timeTd.style.minWidth = 'max-content';
-        timeTd.innerHTML = slot;
-        tr.appendChild(timeTd);
-
-        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-          const td = document.createElement('td');
-          td.className = 'p-2 align-top text-center';
-          td.style.border = '1px solid var(--table-border)';
-          td.style.whiteSpace = 'nowrap';
-          td.style.minWidth = 'max-content';
-          td.style.overflow = 'visible';
-
-          schedule[slot][day].forEach(entry => {
-            const div = document.createElement('div');
-            div.className = 'routine-entry';
-            div.style.backgroundColor = entry.color;
-            div.style.color = entry.textColor;
-            div.style.whiteSpace = 'nowrap';
-            div.style.overflow = 'visible';
-            div.style.textOverflow = 'clip';
-            div.style.minWidth = 'max-content';
-            div.textContent = `${entry.name} - ${entry.course}[${entry.section}] - ${entry.faculty}`;
-            td.appendChild(div);
-          });
-
-          tr.appendChild(td);
-        });
-
-        routineTableBody.appendChild(tr);
-      });
+      renderScheduleTable(schedule, routineTableBody);
 
       // Cache generated routine in localStorage
       localStorage.setItem('cachedRoutine', routineTableBody.innerHTML);
@@ -225,10 +329,21 @@ const RoutineManager = (() => {  // Constants
       console.error('Error generating routine:', error);
       UIManager.showAlert('Error generating routine. Please check your inputs and try again.');
     }
-  }  /**
+  }
+
+  async function refreshRenderedRoutineColors() {
+    try {
+      await generateRoutine();
+    } catch (error) {
+      console.error('Error refreshing routine colors:', error);
+    }
+  }
+
+  /**
    * Get current theme information for screenshot
    * @returns {Object} Theme configuration object
-   */  function getCurrentThemeConfig() {
+   */
+  function getCurrentThemeConfig() {
     const currentTheme = document.body.getAttribute('data-theme') || 'dark';
 
     // Theme-specific configurations
@@ -248,10 +363,12 @@ const RoutineManager = (() => {  // Constants
       pink: {
         name: 'pink',
         backgroundColor: '#ffe6f2', // --routine-bg for pink theme
-        textColor: '#330033',
+        textColor: '#000000',
         borderColor: '#ff69b4'
       }
-    };    return themeConfigs[currentTheme] || themeConfigs.dark;
+    };
+
+    return themeConfigs[currentTheme] || themeConfigs.dark;
   }
 
   /**
@@ -268,14 +385,13 @@ const RoutineManager = (() => {  // Constants
 
       // Check if CanvasScreenshotCapture is available
       if (typeof window.CanvasScreenshotCapture === 'undefined') {
-        console.error('❌ DEBUG: CanvasScreenshotCapture not loaded');
+        console.error('CanvasScreenshotCapture not loaded');
         UIManager.showAlert('Screenshot module not loaded. Please refresh the page.');
         return;
-      }console.log('🎯 DEBUG: Starting screenshot capture...');
+      }
 
       // Get current theme configuration
       const themeConfig = getCurrentThemeConfig();
-      console.log('🎨 DEBUG: Using theme config:', themeConfig);
 
       // Create canvas screenshot capture instance
       const screenshotCapture = new window.CanvasScreenshotCapture();
@@ -291,8 +407,6 @@ const RoutineManager = (() => {  // Constants
         timeoutPromise
       ]);
 
-      console.log('✅ DEBUG: Screenshot created successfully');
-
       // Create download link
       const link = document.createElement('a');
       link.href = imageDataUrl;
@@ -306,22 +420,17 @@ const RoutineManager = (() => {  // Constants
       UIManager.showAlert('Screenshot saved successfully!', 'success');
 
     } catch (error) {
-      console.error('❌ DEBUG: Error capturing exact table screenshot:', error);
-      console.error('❌ DEBUG: Error stack:', error.stack);
+      console.error('Screenshot capture failed:', error);
       UIManager.showAlert('Screenshot failed: ' + error.message, 'error');
     }
-  }/**
+  }
+
+  /**
    * Initialize event listeners for routine-related actions
    */
   function init() {
-    // Check if RoutineDecryptor is available
-    console.log('🔍 RoutineManager init - RoutineDecryptor available:', !!window.RoutineDecryptor);
-    console.log('🔍 RoutineManager init - RoutineDecryptor type:', typeof window.RoutineDecryptor);
-    if (window.RoutineDecryptor) {
-      console.log('🔍 RoutineDecryptor methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.RoutineDecryptor)));
-      console.log('🔍 processEncryptedRoutine exists:', typeof window.RoutineDecryptor.processEncryptedRoutine);
-    } else {
-      console.error('❌ RoutineDecryptor not found during init!');
+    if (!window.RoutineDecryptor || typeof window.RoutineDecryptor.processEncryptedRoutine !== 'function') {
+      console.error('RoutineDecryptor not found during init. Encrypted routines may be unavailable.');
     }
 
     // Generate routine button
@@ -339,7 +448,9 @@ const RoutineManager = (() => {  // Constants
           generateBtn.disabled = false;
         }
       });
-    }    // Screenshot button - enhanced with routine regeneration
+    }
+
+    // Screenshot button - enhanced with routine regeneration
     const screenshotBtn = document.getElementById('screenshot-btn');
     if (screenshotBtn) {
       screenshotBtn.addEventListener('click', async () => {
@@ -350,7 +461,6 @@ const RoutineManager = (() => {  // Constants
 
         try {
           // Always regenerate routine first to ensure latest data
-          console.log('🔄 DEBUG: Regenerating routine before screenshot...');
           UIManager.showAlert('Generating latest routine...', 'info');
           await generateRoutine();
 
@@ -360,7 +470,7 @@ const RoutineManager = (() => {  // Constants
           // Then capture screenshot
           await captureScreenshot();
         } catch (error) {
-          console.error('❌ DEBUG: Screenshot button error:', error);
+          console.error('Screenshot button error:', error);
           UIManager.showAlert('Screenshot failed: ' + error.message, 'error');
         } finally {
           // Re-enable button and hide spinner after delay
@@ -387,6 +497,7 @@ const RoutineManager = (() => {  // Constants
     init,
     generateRoutine,
     captureScreenshot,
-    processRoutineInput
+    processRoutineInput,
+    refreshRenderedRoutineColors
   };
 })();

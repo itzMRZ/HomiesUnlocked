@@ -5,6 +5,28 @@ html, body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+.layout-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .layout-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
 /* Tagline Spark Effect */
 @keyframes sparkEffect {
   0% { text-shadow: 0 0 2px rgba(255,255,255,0.2); }
@@ -24,6 +46,39 @@ html, body {
 .btn-hover:hover {
   transform: scale(1.03);
   filter: brightness(1.1);
+}
+
+#get-id-btn {
+  background-color: #6b46c1;
+  color: #ffffff;
+}
+
+#get-id-btn:hover {
+  filter: brightness(1.15);
+}
+
+#add-user-btn {
+  background-color: var(--button-bg);
+  color: var(--text-color);
+}
+
+#generate-btn {
+  background-color: #3182ce;
+  color: #ffffff;
+}
+
+#screenshot-btn {
+  background-color: #38a169;
+  color: #ffffff;
+}
+
+#combined-routine h2,
+#combined-routine table {
+  color: var(--text-color);
+}
+
+#combined-routine th {
+  border: 1px solid var(--table-border);
 }
 
 @media (max-width: 640px) {
@@ -193,15 +248,16 @@ kbd {
 
 [data-theme="pink"] {
   --bg-color: #ffe1f0;
-  --text-color: #330033;
+  --text-color: #000000;
   --header-bg: #ff73c3;
   --card-bg: #fff0f5;
   --routine-bg: #ffe6f2;
+  --routine-entry-text-color: #000000;
   --button-bg: #ff69b4;
   --button-hover: #ff85b3;
   --table-border: #ff69b4;
   --input-card-bg: #fff0f5;
-  --input-card-text: #330033;
+  --input-card-text: #000000;
   --footer-bg: #ffe1f0;
   --notice-bg: #f59e0b;
   --notice-text: #1a202c;
@@ -451,7 +507,7 @@ textarea.input-field {
   padding-left: var(--routine-entry-padding-left, 0.25rem);
   font-size: var(--routine-entry-font-size, 0.7rem);
   line-height: var(--routine-entry-line-height, 1.2);
-  min-height: var(--routine-entry-min-height, auto);
+  min-height: var(--routine-entry-min-height);
 
   /* Additional properties */
   margin-bottom: 0.2rem;
@@ -464,6 +520,7 @@ textarea.input-field {
   overflow: visible;
   text-overflow: clip;
   min-width: max-content;
+  color: var(--routine-entry-text-color, #ffffff);
 }
 
 /* Routine Card styling */
@@ -479,7 +536,7 @@ textarea.input-field {
 .notice {
   text-align: center;
   font-size: 0.9rem;
-  padding: 0.5rem;
+  padding: 0.5rem 0;
   margin: 0;
   background-color: var(--notice-bg);
   color: var(--notice-text);
