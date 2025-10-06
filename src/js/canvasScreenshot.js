@@ -25,10 +25,10 @@ class CanvasScreenshotCapture {
         // Extract exact data from the rendered table first to analyze content
         const tableData = this.extractExactTableData(table);
 
-    // Calculate maximum users to determine font scaling
-    const maxUsersInTable = this.getMaxUsersInTable(tableData);
-        // Calculate dynamic row heights based on content
-        const dynamicRowHeights = this.calculateDynamicRowHeights(tableData);        // Table configuration with improved aesthetics for text height
+        // Calculate maximum users to determine font scaling
+        const maxUsersInTable = this.getMaxUsersInTable(tableData);
+
+        // Table configuration with improved aesthetics for text height
         const config = {
             padding: 12,
             baseCellHeight: 50,
@@ -46,6 +46,15 @@ class CanvasScreenshotCapture {
             entryHorizontalInset: Math.max(2, 4 - Math.min(maxUsersInTable, 4) * 0.5),
             entrySpacing: Math.max(2, 4 - Math.min(maxUsersInTable, 4) * 0.4)
         };
+
+        config.entryBoxHeight = Math.min(
+            config.maxEntryHeight,
+            Math.max(config.minEntryHeight, config.entryFontSize + 10)
+        );
+        config.verticalPadding = Math.max(12, config.entrySpacing + 6);
+
+        // Calculate dynamic row heights based on content
+        const dynamicRowHeights = this.calculateDynamicRowHeights(tableData, config);
         // Calculate column widths based on content - pass dynamicRowHeights
         const columnWidths = this.calculateOptimalColumnWidths(tableData, config, dynamicRowHeights);
 
@@ -272,17 +281,18 @@ class CanvasScreenshotCapture {
 
             if (dayData.entries.length > 0) {
                 // CONSISTENT FIXED ENTRY HEIGHT - No stretching based on available space
-                const entrySpacing = config.entrySpacing; // Dynamic spacing based on config
+                                const entrySpacing = config.entrySpacing; // Dynamic spacing based on config
 
-                // Completely fixed entry height based only on font size, regardless of cell space
-                const entryHeight = Math.max(20, config.entryFontSize + 6); // Leaner padding for compact feel
+                                // Fixed entry height derived from global config
+                                const entryHeight = config.entryBoxHeight;
                 const entryWidth = cellWidth - (config.entryHorizontalInset * 2);
 
                 // Calculate total height needed for all entries
                 const totalEntriesHeight = (entryHeight * dayData.entries.length) +
                                          (entrySpacing * Math.max(0, dayData.entries.length - 1));
-                  // Center the entries vertically within the cell
-                const entriesStartY = cellY + ((cellHeight - totalEntriesHeight) / 2);
+                                // Center the entries vertically within the cell, never above the cell
+                                const availableSpace = Math.max(0, cellHeight - totalEntriesHeight);
+                                const entriesStartY = cellY + (availableSpace / 2);
 
                 // Use the pre-calculated dynamic font size from config
                 // This ensures consistent scaling based on total user count
@@ -426,36 +436,21 @@ class CanvasScreenshotCapture {
      * @param {Object} tableData - Extracted table data
      * @returns {Array} Array of heights for each row
      */
-    calculateDynamicRowHeights(tableData) {
-        const minCellHeight = 50;
+    calculateDynamicRowHeights(tableData, config = {}) {
+        const baseHeight = config.baseCellHeight ?? 50;
+        const entryHeight = config.entryBoxHeight ?? Math.max(20, (config.entryFontSize ?? 12) + 6);
+        const spacing = config.entrySpacing ?? 2;
+        const verticalPadding = config.verticalPadding ?? 12;
 
         return tableData.rows.map(rowData => {
-            // Find the maximum number of entries in any cell for this row
             const maxEntriesInRow = Math.max(...rowData.days.map(day => day.entries.length), 1);
 
-            if (maxEntriesInRow <= 1) {
-                return minCellHeight;
-            }
+            const contentHeight = (entryHeight * maxEntriesInRow) +
+                (spacing * Math.max(0, maxEntriesInRow - 1));
 
-            // Progressive height calculation based on entry count
-            // More stable approach that doesn't cause layout issues
-            let cellHeight;
-                if (maxEntriesInRow <= 2) {
-                    cellHeight = 62;
-                } else if (maxEntriesInRow <= 3) {
-                    cellHeight = 82;
-                } else if (maxEntriesInRow <= 4) {
-                    cellHeight = 104;
-                } else if (maxEntriesInRow <= 6) {
-                    cellHeight = 132;
-                } else if (maxEntriesInRow <= 8) {
-                    cellHeight = 160;
-                } else {
-                    // 9+ users
-                    cellHeight = 188;
-            }
+            const rowHeight = contentHeight + (verticalPadding * 2);
 
-            return Math.max(minCellHeight, cellHeight);
+            return Math.max(baseHeight, rowHeight);
         });
     }    /**
      * Calculate the maximum number of users present in the table
