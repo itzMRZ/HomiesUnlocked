@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth
+Disallow: /account
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /u/
+Disallow: /share/
+
+Sitemap: https://homies-unlocked.itzmrz.xyz/sitemap.xml
