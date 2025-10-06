@@ -28,8 +28,7 @@ class CanvasScreenshotCapture {
         // Calculate maximum users to determine font scaling
         const maxUsersInTable = this.getMaxUsersInTable(tableData);
 
-        // Calculate dynamic row heights based on content
-        const dynamicRowHeights = this.calculateDynamicRowHeights(tableData);        // Table configuration with improved aesthetics for text height
+        // Table configuration with improved aesthetics for text height
         const config = {
             padding: 12,
             baseCellHeight: 50,
@@ -37,12 +36,26 @@ class CanvasScreenshotCapture {
             borderWidth: 1,
             baseFontSize: this.calculateDynamicFontSize(maxUsersInTable, 14), // Reasonable base size
             headerFontSize: this.calculateDynamicFontSize(maxUsersInTable, 16), // Slightly larger for headers
-            entryFontSize: this.calculateDynamicFontSize(maxUsersInTable, 12), // Smaller for routine entries
+            entryFontSize: this.calculateDynamicFontSize(maxUsersInTable, 13), // Slightly larger for routine entries
+            timeFontSize: this.calculateDynamicFontSize(maxUsersInTable, 15), // Dedicated scaling for time column
             fontFamily: 'Inter, Arial, sans-serif',
+            fontWeight: '600',
             minEntryHeight: Math.max(24, 18 + (maxUsersInTable * 0.5)), // Better minimum height for readability
             maxEntryHeight: Math.max(42, 32 + (maxUsersInTable * 1.2)), // Better maximum height for aesthetics
-            entryPadding: Math.max(3, 2 + (maxUsersInTable * 0.08))     // Slightly more padding for better spacing
-        };// Calculate column widths based on content - pass dynamicRowHeights
+            entryPadding: Math.max(2, 1.5 + (maxUsersInTable * 0.05)),  // Trim side padding slightly
+            entryHorizontalInset: Math.max(2, 4 - Math.min(maxUsersInTable, 4) * 0.5),
+            entrySpacing: Math.max(2, 4 - Math.min(maxUsersInTable, 4) * 0.4)
+        };
+
+        config.entryBoxHeight = Math.min(
+            config.maxEntryHeight,
+            Math.max(config.minEntryHeight, config.entryFontSize + 10)
+        );
+        config.verticalPadding = Math.max(12, config.entrySpacing + 6);
+
+        // Calculate dynamic row heights based on content
+        const dynamicRowHeights = this.calculateDynamicRowHeights(tableData, config);
+        // Calculate column widths based on content - pass dynamicRowHeights
         const columnWidths = this.calculateOptimalColumnWidths(tableData, config, dynamicRowHeights);
 
         // 4x quality scaling
@@ -76,7 +89,9 @@ class CanvasScreenshotCapture {
         this.drawExactTableStructure(config, columnWidths, tableData, baseWidth, baseHeight, dynamicRowHeights, themeConfig);
 
         return this.canvas.toDataURL('image/png', 1.0);
-    }extractExactTableData(table) {
+    }
+
+    extractExactTableData(table) {
         // Get headers
         const headerCells = table.querySelectorAll('thead th');
         const headers = Array.from(headerCells).map(th => th.textContent.trim());
@@ -116,10 +131,9 @@ class CanvasScreenshotCapture {
         });
 
         return { headers, rows };
-    }    calculateOptimalColumnWidths(tableData, config, dynamicRowHeights) {
-        // Calculate dynamic widths based on content density
-        const timeWidth = 160;
+    }
 
+    calculateOptimalColumnWidths(tableData, config, dynamicRowHeights) {
         // Calculate maximum entries per cell across all rows and days
         let maxEntriesPerCell = 1;
         tableData.rows.forEach(row => {
@@ -128,22 +142,19 @@ class CanvasScreenshotCapture {
             });
         });
 
-        // Adjust day column width based on content density
-        // More users = wider columns to accommodate text without excessive truncation
-        let dayWidth = 180; // Base width for 1-3 users
+        // Base widths keep the layout compact for lighter schedules
+        const baseTimeWidth = 140;
+        const baseDayWidth = 150;
 
-        if (maxEntriesPerCell >= 4 && maxEntriesPerCell <= 5) {
-            dayWidth = 220; // Wider for 4-5 users
-        } else if (maxEntriesPerCell >= 6 && maxEntriesPerCell <= 7) {
-            dayWidth = 250; // Even wider for 6-7 users
-        } else if (maxEntriesPerCell >= 8 && maxEntriesPerCell <= 9) {
-            dayWidth = 280; // Wider for 8-9 users
-        } else if (maxEntriesPerCell >= 10) {
-            dayWidth = 320; // Maximum width for 10+ users
-        }
+        // Incrementally widen columns as more users appear to maintain readability
+        const timeWidth = Math.min(180, baseTimeWidth + Math.max(0, (maxEntriesPerCell - 4) * 6));
+        const dayWidth = Math.min(260, baseDayWidth + Math.max(0, (maxEntriesPerCell - 2) * 12));
 
-        // Calculate total dimensions for debugging
-        const columnWidths = [timeWidth, dayWidth, dayWidth, dayWidth, dayWidth, dayWidth, dayWidth, dayWidth];
+        const headerCount = tableData.headers?.length || 8;
+        const columnWidths = Array.from({ length: headerCount }, (_, index) =>
+            index === 0 ? timeWidth : dayWidth
+        );
+
         const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0) + (config.borderWidth * (columnWidths.length + 1));
         const totalHeight = config.headerHeight +
                           dynamicRowHeights.reduce((sum, height) => sum + height, 0) +
@@ -152,13 +163,16 @@ class CanvasScreenshotCapture {
         // Debug logging for dynamic sizing
         console.log('🎯 DEBUG: Dynamic Screenshot Sizing');
         console.log('📊 DEBUG: Max entries per cell:', maxEntriesPerCell);
+        console.log('⏰ DEBUG: Calculated time width:', timeWidth);
         console.log('📏 DEBUG: Calculated day width:', dayWidth);
         console.log('🔤 DEBUG: Dynamic font sizes - Base:', config.baseFontSize, 'Header:', config.headerFontSize, 'Entry:', config.entryFontSize);
         console.log('📋 DEBUG: Row heights:', dynamicRowHeights);
         console.log('🖼️ DEBUG: Canvas dimensions:', totalWidth, 'x', totalHeight);
 
         return columnWidths;
-    }    drawExactTableStructure(config, columnWidths, tableData, totalWidth, totalHeight, dynamicRowHeights, themeConfig) {
+    }
+
+    drawExactTableStructure(config, columnWidths, tableData, totalWidth, totalHeight, dynamicRowHeights, themeConfig) {
         // Draw outer border with theme-aware color
         this.ctx.strokeStyle = themeConfig.borderColor;
         this.ctx.lineWidth = 2;
@@ -177,7 +191,9 @@ class CanvasScreenshotCapture {
 
         // Draw grid lines with dynamic heights and theme config
         this.drawGridLines(config, columnWidths, tableData, totalWidth, totalHeight, dynamicRowHeights, themeConfig);
-    }drawTableHeader(config, columnWidths, headers, startY, themeConfig) {
+    }
+
+    drawTableHeader(config, columnWidths, headers, startY, themeConfig) {
         // Header background - slightly darker than main background
         let headerBg;
         if (themeConfig.name === 'dark') {
@@ -195,6 +211,8 @@ class CanvasScreenshotCapture {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
 
+    this.applyTextShadow(themeConfig);
+
         let currentX = 0;
         headers.forEach((header, index) => {
             const cellCenterX = currentX + (columnWidths[index] / 2);
@@ -203,7 +221,11 @@ class CanvasScreenshotCapture {
             this.ctx.fillText(header, cellCenterX, cellCenterY);
             currentX += columnWidths[index] + config.borderWidth;
         });
-    }    drawTableRow(config, columnWidths, rowData, startY, rowIndex, rowHeight, options) {
+
+        this.clearTextShadow();
+    }
+
+    drawTableRow(config, columnWidths, rowData, startY, rowIndex, rowHeight, options) {
         const { themeConfig, totalWidth } = options;
         // Row background (alternating for better readability) with theme awareness
         // Using very subtle color differences (2-3% shade difference)
@@ -219,14 +241,17 @@ class CanvasScreenshotCapture {
         this.ctx.fillStyle = bgColor;
         this.ctx.fillRect(0, startY, totalWidth, rowHeight);
 
-        let currentX = 0;        // Draw time cell (handle two-line format) with theme-aware text color
+        let currentX = 0;
+        // Draw time cell (handle two-line format) with theme-aware text color
         this.ctx.fillStyle = themeConfig.textColor;
-        this.ctx.font = `${config.baseFontSize}px ${config.fontFamily}`;
+        this.ctx.font = `${config.fontWeight} ${config.timeFontSize}px ${config.fontFamily}`;
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
 
+    this.applyTextShadow(themeConfig);
+
         // Check if timeSlotHtml contains br tag and split accordingly
-        if (rowData.timeSlotHtml && rowData.timeSlotHtml.includes('<br>')) {
+        if (rowData.timeSlotHtml?.includes('<br>')) {
             // Split by br tag
             const timeParts = rowData.timeSlotHtml.split('<br>').map(part => part.trim());
 
@@ -243,6 +268,8 @@ class CanvasScreenshotCapture {
             // Single line format (fallback)
             this.ctx.fillText(rowData.timeSlot, currentX + (columnWidths[0] / 2), startY + (rowHeight / 2));
         }
+
+        this.clearTextShadow();
         currentX += columnWidths[0] + config.borderWidth;
 
         // Draw day cells with routine entries
@@ -250,41 +277,45 @@ class CanvasScreenshotCapture {
             const cellX = currentX;
             const cellY = startY;
             const cellWidth = columnWidths[dayIndex + 1];
-            const cellHeight = rowHeight;            if (dayData.entries.length > 0) {
-                // CONSISTENT FIXED ENTRY HEIGHT - No stretching based on available space
-                const entrySpacing = 4; // Fixed spacing between entries
+            const cellHeight = rowHeight;
 
-                // Completely fixed entry height based only on font size, regardless of cell space
-                const entryHeight = Math.max(20, config.entryFontSize + 8); // Minimum 20px, or font + padding
-                const entryWidth = cellWidth - 8;
+            if (dayData.entries.length > 0) {
+                // CONSISTENT FIXED ENTRY HEIGHT - No stretching based on available space
+                                const entrySpacing = config.entrySpacing; // Dynamic spacing based on config
+
+                                // Fixed entry height derived from global config
+                                const entryHeight = config.entryBoxHeight;
+                const entryWidth = cellWidth - (config.entryHorizontalInset * 2);
 
                 // Calculate total height needed for all entries
                 const totalEntriesHeight = (entryHeight * dayData.entries.length) +
                                          (entrySpacing * Math.max(0, dayData.entries.length - 1));
-                  // Center the entries vertically within the cell
-                const entriesStartY = cellY + ((cellHeight - totalEntriesHeight) / 2);
+                                // Center the entries vertically within the cell, never above the cell
+                                const availableSpace = Math.max(0, cellHeight - totalEntriesHeight);
+                                const entriesStartY = cellY + (availableSpace / 2);
 
                 // Use the pre-calculated dynamic font size from config
                 // This ensures consistent scaling based on total user count
                 const fontSize = config.entryFontSize;
 
                 dayData.entries.forEach((entry, entryIndex) => {
-                    const entryX = cellX + 4;
-                    const entryY = entriesStartY + (entryIndex * (entryHeight + entrySpacing));                    // Draw entry background with slightly rounded corners
+                    const entryX = cellX + config.entryHorizontalInset;
+                    const entryY = entriesStartY + (entryIndex * (entryHeight + entrySpacing));
+                    // Draw entry background with slightly rounded corners
                     this.ctx.fillStyle = this.parseColor(entry.backgroundColor);
                     this.drawRoundedRect(entryX, entryY, entryWidth, entryHeight, 3); // 3px border radius for subtle effect
 
                     // Draw entry text with dynamic font size and better vertical centering
                     this.ctx.fillStyle = this.parseColor(entry.color);
-                    this.ctx.font = `${fontSize}px ${config.fontFamily}`;// ABSOLUTE NO-WRAP LOGIC: Measure actual text width and truncate precisely
+                    this.ctx.font = `${config.fontWeight} ${fontSize}px ${config.fontFamily}`; // ABSOLUTE NO-WRAP LOGIC: Measure actual text width and truncate precisely
                     let displayText = entry.text;
 
                     // Calculate available width with minimal padding
-                    const horizontalPadding = Math.max(2, fontSize * 0.15); // Very conservative padding
+                    const horizontalPadding = Math.max(config.entryPadding, fontSize * 0.12); // Keep text snug while preventing clipping
                     const maxTextWidth = entryWidth - (horizontalPadding * 2);
 
                     // Set font before measuring
-                    this.ctx.font = `${fontSize}px ${config.fontFamily}`;
+                    this.ctx.font = `${config.fontWeight} ${fontSize}px ${config.fontFamily}`;
 
                     // Measure actual text width and truncate if needed
                     let textWidth = this.ctx.measureText(displayText).width;
@@ -322,7 +353,9 @@ class CanvasScreenshotCapture {
                     const textY = entryY + (entryHeight / 2);
 
                     // Draw text (guaranteed to fit)
+                    this.applyTextShadow(themeConfig);
                     this.ctx.fillText(displayText, textX, textY);
+                    this.clearTextShadow();
                 });
             }
 
@@ -361,6 +394,33 @@ class CanvasScreenshotCapture {
         this.ctx.stroke();
     }
 
+    applyTextShadow(themeConfig) {
+        if (!this.ctx) {
+            return;
+        }
+
+        if (themeConfig?.name === 'pink') {
+            this.clearTextShadow();
+            return;
+        }
+
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
+        this.ctx.shadowBlur = 2;
+        this.ctx.shadowOffsetX = 1;
+        this.ctx.shadowOffsetY = 1;
+    }
+
+    clearTextShadow() {
+        if (!this.ctx) {
+            return;
+        }
+
+        this.ctx.shadowColor = 'transparent';
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+    }
+
     parseColor(colorString) {
         // Handle different color formats
         if (colorString.startsWith('rgb')) {
@@ -369,43 +429,28 @@ class CanvasScreenshotCapture {
             return colorString;
         } else {
             // Named colors or other formats
-            return colorString || '#000000';
+            return colorString || '#FFFFFF';
         }
     }    /**
      * Calculate dynamic row heights based on the maximum number of entries in each row
      * @param {Object} tableData - Extracted table data
      * @returns {Array} Array of heights for each row
      */
-    calculateDynamicRowHeights(tableData) {
-        const minCellHeight = 50;
+    calculateDynamicRowHeights(tableData, config = {}) {
+        const baseHeight = config.baseCellHeight ?? 50;
+        const entryHeight = config.entryBoxHeight ?? Math.max(20, (config.entryFontSize ?? 12) + 6);
+        const spacing = config.entrySpacing ?? 2;
+        const verticalPadding = config.verticalPadding ?? 12;
 
         return tableData.rows.map(rowData => {
-            // Find the maximum number of entries in any cell for this row
             const maxEntriesInRow = Math.max(...rowData.days.map(day => day.entries.length), 1);
 
-            if (maxEntriesInRow <= 1) {
-                return minCellHeight;
-            }
+            const contentHeight = (entryHeight * maxEntriesInRow) +
+                (spacing * Math.max(0, maxEntriesInRow - 1));
 
-            // Progressive height calculation based on entry count
-            // More stable approach that doesn't cause layout issues
-            let cellHeight;
-            if (maxEntriesInRow <= 2) {
-                cellHeight = 70;
-            } else if (maxEntriesInRow <= 3) {
-                cellHeight = 90;
-            } else if (maxEntriesInRow <= 4) {
-                cellHeight = 110;
-            } else if (maxEntriesInRow <= 6) {
-                cellHeight = 140;
-            } else if (maxEntriesInRow <= 8) {
-                cellHeight = 170;
-            } else {
-                // 9+ users
-                cellHeight = 200;
-            }
+            const rowHeight = contentHeight + (verticalPadding * 2);
 
-            return Math.max(minCellHeight, cellHeight);
+            return Math.max(baseHeight, rowHeight);
         });
     }    /**
      * Calculate the maximum number of users present in the table
@@ -429,25 +474,25 @@ class CanvasScreenshotCapture {
      * @returns {number} Calculated font size
      */
     calculateDynamicFontSize(userCount, baseFontSize) {
-        // CORRECTED: Scale DOWN as user count increases to fit more content
-        // Logical scaling: more users = smaller fonts to prevent wrapping
+    // Enhanced scaling: keep text bold and generous for smaller groups
+    // More users still trigger a gentle reduction to preserve layout
 
         let scaleFactor;
         if (userCount <= 2) {
-            scaleFactor = 1.0;     // Full size for 1-2 users
+            scaleFactor = 1.18;    // Slightly larger for 1-2 users
         } else if (userCount <= 4) {
-            scaleFactor = 0.9;     // 10% smaller for 3-4 users
+            scaleFactor = 1.08;    // Keep text generous for 3-4 users
         } else if (userCount <= 6) {
-            scaleFactor = 0.8;     // 20% smaller for 5-6 users
+            scaleFactor = 1.0;     // Neutral scaling for 5-6 users
         } else if (userCount <= 8) {
-            scaleFactor = 0.7;     // 30% smaller for 7-8 users
+            scaleFactor = 0.92;    // Mild reduction for 7-8 users
         } else {
-            scaleFactor = 0.6;     // 40% smaller for 9+ users (maximum shrinkage)
+            scaleFactor = 0.88;    // Moderate reduction for 9+ users
         }
 
-        const scaledFontSize = Math.max(8, Math.round(baseFontSize * scaleFactor)); // Minimum 8px font
+        const scaledFontSize = Math.max(10, Math.round(baseFontSize * scaleFactor)); // Minimum 10px font
 
-        console.log(`🔤 DEBUG: Corrected Font scaling - Users: ${userCount}, Base: ${baseFontSize}px → Scale: ${scaleFactor}x → Final: ${scaledFontSize}px`);
+        console.log(`🔤 DEBUG: Enhanced font scaling - Users: ${userCount}, Base: ${baseFontSize}px → Scale: ${scaleFactor}x → Final: ${scaledFontSize}px`);
         return scaledFontSize;
     }    /**
      * Draw a rounded rectangle on the canvas

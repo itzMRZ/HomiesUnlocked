@@ -126,7 +126,7 @@ const UIManager = (() => {  /**
 
         const successful = document.execCommand('copy');
         document.body.removeChild(textArea);
-        
+
         if (successful) {
           showAlert('Link copied to clipboard!', 'success');
           if (copyBtn) {
@@ -209,14 +209,9 @@ const UIManager = (() => {  /**
       });
     }    // Update mobile notice if needed
     if (typeof UserInputManager !== 'undefined' && UserInputManager.isMobileDevice()) {
-      const noteElement = document.getElementById('screenshot-note');
-      if (noteElement) {
-        noteElement.innerText = 'Generate a combined routine with up to 10 people ^_~ Desktop mode is not recommended on phones.';
-      }
-
       const yellowNotice = document.getElementById('screenshot-notice');
       if (yellowNotice) {
-        yellowNotice.innerHTML = 'Generate a combined routine with up to 10 people ^_~';
+        yellowNotice.textContent = 'Generate a combined routine with up to 10 people ^_~';
       }
     }
 
