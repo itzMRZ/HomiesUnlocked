@@ -34,35 +34,6 @@
   <!-- Custom styles -->
   <link rel="stylesheet" href="src/css/styles.css">
 
-  <!-- Microsoft Clarity Analytics (disabled on localhost) -->
-  <script type="text/javascript">
-    (function(c, l, a, r, i) {
-      function queueClarityCall() {
-        c[a].q = c[a].q || [];
-        c[a].q.push(arguments);
-      }
-
-      const host = l.location && l.location.hostname ? l.location.hostname : '';
-      if (/^(localhost|127\.0\.0\.1)$/i.test(host)) {
-        c[a] = c[a] || queueClarityCall;
-        c[a].skip = true;
-        return;
-      }
-
-      if (!c[a]) {
-        c[a] = queueClarityCall;
-      }
-
-      const clarityScript = l.createElement(r);
-      clarityScript.async = true;
-      clarityScript.src = `https://www.clarity.ms/tag/${i}`;
-
-      const firstScript = l.getElementsByTagName(r)[0];
-      if (firstScript && firstScript.parentNode) {
-        firstScript.parentNode.insertBefore(clarityScript, firstScript);
-      }
-    })(window, document, "clarity", "script", "s2qdoowjxs");
-  </script>
 
   <!-- Vercel Analytics -->
   <script>
@@ -296,36 +267,6 @@
     </a>
   </div>
 
-  <!-- Analytics (loaded only outside localhost) -->
-  <script>
-    (function() {
-      const host = window.location.hostname;
-      const isLocalhost = host === 'localhost' || host === '127.0.0.1';
-
-      window.plausible = window.plausible || function() {
-        window.plausible.q = window.plausible.q || [];
-        window.plausible.q.push(arguments);
-      };
-
-      if (isLocalhost) {
-        window.plausible.devMode = true;
-        console.info('ℹ️ Analytics scripts skipped in local development.');
-        return;
-      }
-
-      const plausibleScript = document.createElement('script');
-      plausibleScript.defer = true;
-      plausibleScript.setAttribute('data-domain', 'homies-unlocked.itzmrz.xyz');
-      plausibleScript.src = 'https://plausible.io/js/script.file-downloads.outbound-links.tagged-events.js';
-      document.body.appendChild(plausibleScript);
-
-      const cloudflareScript = document.createElement('script');
-      cloudflareScript.defer = true;
-      cloudflareScript.src = 'https://static.cloudflareinsights.com/beacon.min.js';
-      cloudflareScript.setAttribute('data-cf-beacon', '{"token": "2620d283e31648218ece78dc1c9aaba3"}');
-      document.body.appendChild(cloudflareScript);
-    })();
-  </script>
 
   <!-- Module scripts -->
   <script src="src/js/uiManager.js"></script>
